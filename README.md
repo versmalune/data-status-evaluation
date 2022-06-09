@@ -2,7 +2,7 @@
 
 * Environment
     * Java 1.8
-    * SprinBoot 2.6.2
+    * SpringBoot 2.6.2
     * Cubrid
     * Spring-Data-JPA
 
