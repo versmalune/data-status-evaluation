@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      th:with="EvaluationStatus = ${T(kr.co.data_status_evaluation.model.enums.EvaluationStatus)},
+               EvaluationType = ${T(kr.co.data_status_evaluation.model.enums.EvaluationType)}"
+      xmlns:padding-right="http://www.w3.org/1999/xhtml">
+<div layout:fragment="content" class="container eval-result-container" id="result-content">
+    <div class="content-wrap">
+        <div class="title-section" id="exclude-pdf">
+            <div class="row">
+                <div class="col">
+                    <div class="row mb-2">
+                        <div class="col">
+                            <div class="evl-title d-flex justify-content-start">
+                                <div class="evl-title">
+                                    <span th:text="${currentEvlYear} + '년 ' + ${institution.name} + ' (' + ${institution.code} + ')'"></span>
+                                </div>
+                                <div class="ms-3">
+                                    <button role="button" class="btn btn-result pdf-download-btn">보고서 출력하기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="d-flex" style="font-size: 16px;">
+                                해당 지표는
+                                <strong>
+                                    <span class="fw-bold"
+                                          th:text="${currentSchedule != null ? ' ['+currentSchedule.name.title+'] ' : isScheduleFinished ? ' ['+EvaluationStatus.END.title+'] ' : ' ['+EvaluationStatus.NONE.title+'] '}"
+                                          style="color: #e6b800"></span>
+                                </strong>시점을 기준으로 작성되었습니다.<br><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content-section" id="content-section">
+            <div id="pdf-page1">
+                <div id="table-before-page1">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card-title text-center align-self-center mb-4"
+                                 style="background: rgb(0 63 131); color: #fff;">
+                                <h3 class="p-3">공공데이터 제공 운영실태 평가 결과</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            <table class="table custom-result-table">
+                                <caption></caption>
+                                <tbody>
+                                <tr>
+                                    <th>평가점수</th>
+                                </tr>
+                                <tr>
+                                    <td class="text-center" th:text="${#numbers.formatDecimal(totalScore, 1, 2)} + ' 점'"
+                                        style="height: 73px; font-size: 32.5px"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-9">
+                            <table class="table custom-result-table text-center">
+                                <caption></caption>
+                                <colgroup>
+                                    <col style="width:30%">
+                                    <col style="width:70%">
+                                </colgroup>
+                                <tbody>
+                                <tr>
+                                    <th>기관명</th>
+                                    <td class="text-start" style="padding-left: 20px !important;"
+                                        th:text="${institution.name} + ' (' + ${institution.code} + ')'"></td>
+                                </tr>
+                                <tr>
+                                    <th>평가 년도</th>
+                                    <td class="text-start" style="padding-left: 20px !important;"
+                                        th:text="${currentEvlYear}+년"></td>
+                                </tr>
+                                <tr th:with="evlRank = ${(totalScore >= 80) ? '우수' : (totalScore >= 60) ? '보통' : '미흡'}">
+                                    <th>평가 결과</th>
+                                    <td class="text-start" style="padding-left: 20px !important;"
+                                        th:text="${#numbers.formatDecimal(totalScore, 1, 2) + ' 점 (' + evlRank + ')'}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="card-title">
+                                <h4>영역별 총평</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="table-page1">
+                    <div class="col">
+                        <table class="table text-center custom-result-table mt-3 eval-result-total-table p-0-table eval-page-break-table">
+                            <caption></caption>
+                            <colgroup>
+                                <col style="width:15%">
+                                <col style="width:15%">
+                                <col style="width:70%">
+                            </colgroup>
+                            <thead>
+                            <tr id="table-header-page1">
+                                <th>영역 (배점)</th>
+                                <th th:text="${currentEvlYear} + '년 결과'"></th>
+                                <th>검토의견</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td th:text="'종합 (' + ${fieldTotalScore} + ')'"></td>
+                                <td th:text="${#numbers.formatDecimal(totalScore,1,2)}"></td>
+                                <td>-</td>
+                            </tr>
+                            <tr th:each="fs, iter : ${fieldScores}">
+                                <td th:text="${fs.key.name + ' (' + fs.key.score + ')'}"></td>
+                                <td th:text="${#numbers.formatDecimal(fs.value, 1, 2)}"></td>
+                                <td class="text-start"
+                                    th:text="${#strings.isEmpty(institution.getResultTotal(fs.key)?.review) ? '검토의견이 없습니다.' : institution.getResultTotal(fs.key).review}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row pdf-page-break">
+                <div class="col">
+                    <div class="card-title">
+                        <h4 th:text="${currentEvlYear} + '년 지표별 평가결과(등급)'"></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <table class="table text-center custom-result-table mt-3 eval-result-total-table p-0-table">
+                        <caption></caption>
+                        <colgroup>
+                            <col style="width:10%">
+                            <col style="width:60%">
+                            <col style="width:10%">
+                            <col style="width:10%">
+                            <col style="width:10%">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>영역</th>
+                            <th>지표명</th>
+                            <th>배점</th>
+                            <th>점수</th>
+                            <th>등급</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:if="${evaluationIndices.isEmpty()}">
+                            <tr>
+                                <td colspan="5">데이터가 존재하지 않습니다.</td>
+                            </tr>
+                        </th:block>
+                        <th:block th:unless="${evaluationIndices.isEmpty()}">
+                            <tr th:each="index, stat: ${evaluationIndices}">
+                                <td th:if="${stat.first || !(evaluationIndices.get(stat.index - 1).evaluationField.name == stat.current.evaluationField.name)}"
+                                    th:text="${index.evaluationField.name}"
+                                    th:rowspan="${rowspanMapByField.get(index.evaluationField.name)}"></td>
+                                <td class="text-start" style="padding-left: 20px !important;"
+                                    th:text="${index.no + '. ' + index.name}"></td>
+                                <td th:text="${index.getPerfectScore(institution.category)}"></td>
+                                <td th:text="${index.result.score == null ? 'N/A' : index.result.score}"></td>
+                                <td th:text="${index.type == EvaluationType.QUANTITATION ? (index.quantitationRank != null ? index.quantitationRank + '등급' : index.naLevel ? 'N/A' : '- 등급')
+                                    : index.type == EvaluationType.QUALITATIVE ? index.qualitativeRank + '등급' : '-'}"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"
+                                    style="background: #2F8ECA; color: white; padding-right: 20px !important;">환산 전 평가점수
+                                    (가감점 제외)
+                                </td>
+                                <td colspan="2" th:text="${#numbers.formatDecimal(scoreWithoutEtc,1,2)}"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"
+                                    style="background: #2F8ECA; color: white; padding-right: 20px !important;">환산 후 평가점수
+                                    (가감점 제외)
+                                </td>
+                                <td colspan="2" th:text="${#numbers.formatDecimal(standardScoreWithoutEtc,1,2)}"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"
+                                    style="background: #0a53be; color: white; padding-right: 20px !important;">최종 평가점수
+                                    (가감점 포함)
+                                </td>
+                                <td colspan="2" th:text="${#numbers.formatDecimal(totalScore,1,2)}"></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row pdf-page-break">
+                <div class="col-12">
+                    <div class="card-title">
+                        <h4 th:text="${currentEvlYear - 1} + '년 지표별 평가결과(등급)'"></h4>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <table class="table text-center custom-result-table mt-3 eval-result-total-table p-0-table">
+                        <caption></caption>
+                        <colgroup>
+                            <col style="width:10%">
+                            <col style="width:60%">
+                            <col style="width:10%">
+                            <col style="width:10%">
+                            <col style="width:10%">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th>영역</th>
+                            <th>지표명</th>
+                            <th>배점</th>
+                            <th>점수</th>
+                            <th>등급</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:if="${previousIndices.isEmpty()}">
+                            <tr>
+                                <td colspan="5">데이터가 존재하지 않습니다.</td>
+                            </tr>
+                        </th:block>
+                        <th:block th:unless="${previousIndices.isEmpty()}">
+                            <tr th:each="index, stat: ${previousIndices}">
+                                <td th:if="${stat.first || !(previousIndices.get(stat.index - 1).evaluationField.name == stat.current.evaluationField.name)}"
+                                    th:text="${index.evaluationField.name}"
+                                    th:rowspan="${previousRowspanMapByField.get(index.evaluationField.name)}"></td>
+                                <td class="text-start" style="padding-left: 20px !important;"
+                                    th:text="${index.no + '. ' + index.name}"></td>
+                                <td th:text="${index.getPerfectScore(institution.category)}"></td>
+                                <td th:text="${index.result.score == null ? 'N/A' : index.result.score}"></td>
+                                <td th:text="${index.type == EvaluationType.QUANTITATION ? (index.quantitationRank != null ? index.quantitationRank + '등급' : index.naLevel ? 'N/A' : '- 등급')
+                                            : index.type == EvaluationType.QUALITATIVE ? index.qualitativeRank + '등급' : '-'}"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"
+                                    style="background: #2F8ECA; color: white; padding-right: 20px !important;">환산 전 평가점수
+                                    (가감점 제외)
+                                </td>
+                                <td colspan="2" th:text="${previousScoreWithoutEtc}"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"
+                                    style="background: #2F8ECA; color: white; padding-right: 20px !important;">환산 후 평가점수
+                                    (가감점 제외)
+                                </td>
+                                <td colspan="2"
+                                    th:text="${#numbers.formatDecimal(previousStandardScoreWithoutEtc,1,2)}"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"
+                                    style="background: #0a53be; color: white; padding-right: 20px !important;">최종 평가점수
+                                    (가감점 포함)
+                                </td>
+                                <td colspan="2" th:text="${#numbers.formatDecimal(previousTotalScore,1,2)}"></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row pdf-page-break">
+                <div class="col-12">
+                    <div class="card-title">
+                        <h4>
+                            <span>
+                                <i class="fas fa-arrow-alt-square-right"></i>
+                                <span th:text="${institution.getTypeByYear(currentEvlYearStr)}"></span>
+                                평균 대비
+                                <span th:text="${institution.name}"></span>
+                                측정 점수 비교
+                            </span>
+                        </h4>
+                        <hr/>
+                    </div>
+                    <ul class="border border-warning rounded-3 p-2 px-4">
+                        <li>
+                            <span th:text="${institution.name}"></span>
+                            의 평가 점수는
+                            <span th:text="${#numbers.formatDecimal(totalScore, 1, 2)}"></span>
+                            으로
+                            <span th:text="${institution.getTypeByYear(currentEvlYearStr)}"></span>
+                            평균(<span th:text="${#numbers.formatDecimal(totalAverageByCategory, 1, 2)}"></span>) 대비
+                            <th:block th:if="${totalScore < totalAverageByCategory}">
+                                <span>낮은 수준</span>
+                            </th:block>
+                            <th:block th:if="${totalScore > totalAverageByCategory}">
+                                <span>높은 수준</span>
+                            </th:block>
+                            <th:block th:if="${totalScore == totalAverageByCategory}">
+                                <span>동일</span>
+                            </th:block>
+                            입니다.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+
+            <div class="row" style="padding: 0 10.5px;">
+                <div class="col-6 position-relative border border-1 py-4 px-0 chart-wrap">
+                    <h5 class="text-center">
+                        <span th:text="${institution.getTypeByYear(currentEvlYearStr)}"></span>
+                        점수대별 분포 중<br/>
+                        <span th:text="${institution.name}"></span>
+                        위치
+                    </h5>
+                    <div id="column-chart" class="result-chart" style="height: 100%;"></div>
+                    <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part(1)"></div>
+                </div>
+
+                <div class="col-6 position-relative border border-1 py-4 px-0 chart-wrap">
+                    <h5 class="text-center">
+                        <span th:text="${institution.getTypeByYear(currentEvlYearStr)}"></span>
+                        평가영역별 점수 분포
+                    </h5>
+                    <div id="stack-column-chart" class="result-chart"></div>
+                    <!--                    <div class="chart-legend chart-legend-sm" id="stack-column-legend"></div>-->
+                    <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part(2)"></div>
+                </div>
+
+                <div class="col-6 position-relative border border-1 py-4 px-0 chart-wrap">
+                    <h5 class="text-center">
+                        <span th:text="${institution.getTypeByYear(currentEvlYearStr)}"></span>
+                        중
+                        <span th:text="${institution.name}"></span>
+                        <br/>영역별 평균 비교
+                    </h5>
+                    <div id="radar-chart" class="result-chart"></div>
+                    <!--                    <div class="chart-legend chart-legend-sm" id="radar-legend"></div>-->
+                    <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part(3)"></div>
+                </div>
+
+                <div class="col-6 border border-1 py-4">
+                    <h5 class="text-center">
+                        (참고) <span th:text="${institution.getTypeByYear(currentEvlYearStr)}"></span>
+                        점수 통계
+                        <br/>(100점 만점 환산점수)
+                    </h5>
+                    <table class="table text-center custom-result-table mt-4">
+                        <thead>
+                        <tr>
+                            <th th:utext="'영역명<br/>('+${institution.name}+')'"></th>
+                            <th>최저점수</th>
+                            <th>평균점수</th>
+                            <th>최고점수</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:if="${fieldScores.isEmpty()}">
+                            <tr>
+                                <td colspan="4">데이터가 존재하지 않습니다.</td>
+                            </tr>
+                        </th:block>
+                        <th:block th:unless="${fieldScores.isEmpty()}">
+                            <tr th:each="fs, stat: ${fieldScores}"
+                                th:with="standardScore=${scoreSummaryByCategory.containsKey(fs.key.name) ? #numbers.formatDecimal(fs.value * 100 / scoreSummaryByCategory.get(fs.key.name).fieldScore, 1, 2) : 0}"
+                                th:unless="${fs.key.name.contains('기타')}">
+                                <td th:text="${fs.key.name} + ' (' + ${standardScore} + ')'"></td>
+                                <td th:text="${scoreSummaryByCategory.containsKey(fs.key.name) ? #numbers.formatDecimal(scoreSummaryByCategory.get(fs.key.name).min, 1, 2) : '0'}"></td>
+                                <td th:text="${scoreSummaryByCategory.containsKey(fs.key.name) ? #numbers.formatDecimal(scoreSummaryByCategory.get(fs.key.name).avg, 1, 2) : '0'}"></td>
+                                <td th:text="${scoreSummaryByCategory.containsKey(fs.key.name) ? #numbers.formatDecimal(scoreSummaryByCategory.get(fs.key.name).max, 1, 2) : '0'}"></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="footer-content" class="mt-1 d-inline-block">
+
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/common/ajax-spinner.js}"></script>
+    <script th:src="@{/js/ext/amcharts/core.js}"></script>
+    <script th:src="@{/js/ext/amcharts/charts.js}"></script>
+    <script th:src="@{/js/ext/amcharts/animated.js}"></script>
+    <script>am4core.addLicense("CH204832145");</script>
+    <script th:src="@{/js/app/home/home-chart-manager.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var insttCode = "[[${institution.code}]]"
+        var insttName = "[[${institution.name}]]"
+        var categoryName = "[[${institution.getTypeByYear(currentEvlYearStr)}]]"
+        var currentYear = "[[${currentEvlYear}]]"
+        var status = "[[${currentSchedule != null ? currentSchedule.name.title : isScheduleFinished ? EvaluationStatus.END.title : EvaluationStatus.NONE.title}]]"
+        var insttId = "[[${institution.id}]]"
+        var totalScore = "[[${totalScore}]]"
+        var contextPath = "[[${contextPath}]]"
+        /*]]>*/
+        startLoading(); // 차트 3개 로딩 완료 전까지 spinner start
+        var charts = {};
+        var detachedObj = {};
+        $('.pdf-download-btn').on("click", function () {
+            startLoading();
+
+            var promises = [];
+            $.each($(".result-chart"), function (idx, el) {
+                var element = $(this);
+                var dfd = $.Deferred();
+
+                charts[idx + 1].exporting.getImage("svg").then(function (imgData) {
+                    element.after($('<img>', {src: imgData, style: "display: block; margin: 0 auto; width:360px;"}));
+                    detachedObj[idx] = element.detach();
+                    dfd.resolve();
+                });
+                promises.push(dfd);
+            })
+
+            $.when.apply($, promises).done(function () {
+                $('#exclude-pdf').addClass('d-none');
+                convertPdfBefore();
+                setTimeout(() => {
+                    pdfSave();
+                }, 3000); // 비동기 호출
+            })
+        });
+
+        function convertPdfBefore() {
+            /*
+             1페이지에 존재하는 '영역별 총평' 테이블이 페이지 높이를 넘어가는 경우
+             테이블 row 사이에 header 및 pageBreak를 추가
+             */
+            var maxHeightPerPage = 1000; // px
+            if ($('#pdf-page1')[0].offsetHeight > maxHeightPerPage) {
+                var tableBeforeHeight = $('#table-before-page1')[0].offsetHeight;
+                var tableMarginT = parseFloat($('#table-page1 table').css('margin-top').replaceAll('px', '')); // 1rem = 14px = 3.7mm
+                var currentHeight = tableBeforeHeight + tableMarginT;
+
+                var $header = $('#table-page1 table thead tr')[0];
+                var $trPageBreak = document.createElement('tr');
+                $trPageBreak.className = 'pdf-page-break pdf-cloned';
+                $($trPageBreak).css('height', '1px');
+
+                var $trList = $('#table-page1 tr');
+                _.forEach($trList, function ($tr) {
+                    currentHeight += $tr.offsetHeight;
+
+                    if (currentHeight > maxHeightPerPage) {
+                        var clonedHeader = $.clone($header);
+                        $(clonedHeader).addClass("pdf-cloned");
+
+                        $tr.before($trPageBreak);
+                        $tr.before(clonedHeader);
+                        currentHeight = $header.offsetHeight + $tr.offsetHeight;
+                    }
+                })
+            }
+        }
+
+        var $resultFooter = Handlebars.getTemplate("evaluations/result-footer");
+        var isReadyToSavePdf = false; // pdf 최초 다운로드시 필요한 작업 진행 여부
+        var totalPages = 0;
+        var pageImgs = []; // pdf 좌측 하단의 pageNumber 이미지용 arr
+
+        function pdfSave() {
+            var fileNm = currentYear + '년_' + insttName + '(' + insttCode + ')_평가결과보고서';
+            fileNm += "_" + new Date().toISOString().slice(0, 10).replaceAll("-", "");
+            fileNm += ".pdf";
+
+            var hpdf = html2pdf();
+
+            var toPdf = hpdf.set({
+                margin: [12.4, 0, 12.4, 0],
+                filename: fileNm,
+                /*
+                    mode: 'avoid-all' 옵션 제거
+                    - 최대 높이 넘어가면 자동으로 page-break 걸어주는 옵션이지만,
+                    - <table> 태그 전체가 다음 페이지로 넘어가는 현상으로 인해 제거
+                 */
+                // pagebreak: {mode: 'avoid-all', before: '#content-section .pdf-page-break'},
+                pagebreak: {before: '#content-section .pdf-page-break'},
+                image: {type: 'png', quality: 0.98},
+            }).from(
+                document.getElementById('result-content')
+            ).toPdf();
+
+            if (!isReadyToSavePdf) {
+                toPdf.get('pdf').then(async function (pdf) {
+                    // pdf 좌측 하단에 pageNumber 이미지 생성
+                    totalPages = pdf.internal.getNumberOfPages();
+
+                    var $divMarginTop1 = document.createElement('div');
+                    $divMarginTop1.className = 'pdf-cloned mt-1';
+
+                    for (var i = 1; i <= totalPages; i++) {
+                        var $footerForPage = $resultFooter({
+                            currentPageNum: i,
+                            totalPageNum: totalPages,
+                        });
+                        $('#footer-content').append($footerForPage);
+                        $('#footer-content').append($.clone($divMarginTop1));
+
+                        var dataUrl = await domtoimage.toPng($('#footer-content #footer-per-page-' + i)[0]);
+                        var img = new Image();
+                        img.src = dataUrl;
+                        pageImgs.push({
+                            img: img,
+                        })
+                    }
+                });
+            }
+
+            var saveInterval = setInterval(function () {
+                if (isReadyToSavePdf || pageImgs.length == totalPages) {
+                    // pdf 최초 작업 및 pageNumber 이미지 생성 완료될때까지 interval 체크
+                    isReadyToSavePdf = true;
+
+                    // 조건 만족 시 interval 제거
+                    clearInterval(saveInterval);
+
+                    toPdf.get('pdf').then(function (pdf) {
+                        // pageNumber 이미지, footer 이미지 추가
+                        for (var i = 1; i <= totalPages; i++) {
+                            pdf.setPage(i);
+
+                            var pageImg = pageImgs[i - 1].img;
+                            pdf.addImage(pageImg, 'png', 10, pdf.internal.pageSize.getHeight() - 12, 18, 9);
+
+                            var footerLogo01 = new Image();
+                            footerLogo01.src = contextPath + '/imgs/footer_logo01.png';
+                            pdf.addImage(footerLogo01, 'png', pdf.internal.pageSize.getWidth() - 104, pdf.internal.pageSize.getHeight() - 12, 35, 9);
+
+                            pdf.text('|', pdf.internal.pageSize.getWidth() - 67, pdf.internal.pageSize.getHeight() - 6);
+
+                            var footerLogo03 = new Image();
+                            footerLogo03.src = contextPath + '/imgs/footer_logo03.png';
+                            pdf.addImage(footerLogo03, 'png', pdf.internal.pageSize.getWidth() - 67, pdf.internal.pageSize.getHeight() - 12, 60, 9);
+                        }
+                    }).save().then(function () {
+                        $('#exclude-pdf').removeClass('d-none');
+                        $(".chart-wrap").find("img").remove();
+                        $(".chart-wrap").each(function (idx) {
+                            $(this).append(detachedObj[idx]);
+                        })
+                        $(".pdf-cloned").detach();
+                        stopLoading();
+                    });
+                }
+            }, 2500);
+        }
+
+        var homeChartManager = new HomeChartManager();
+
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+        var evlYear = new URLSearchParams(location.search).get("evlYear");
+        $.ajax({
+            url: `${contextPath}/instt/eval/stats/comparison/${insttId}?evlYear=${evlYear}`,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+                startLoading(3);
+            },
+            complete: function () {
+                stopLoading(3);
+                if (Object.keys(charts).length === 3) {
+                    stopLoading();
+                }
+            },
+            type: "GET",
+            success: function (data) {
+                var arr = []
+                Object.keys(data["scoreByField"]).forEach(key => {
+                    if (!key.includes("기타")) {
+                        var obj = {
+                            "title": key,
+                            "count1": data["scoreSummaryByCategory"][key] ?
+                                data["scoreSummaryByCategory"][key]["avg"] : 0,
+                            "count2": data["scoreByField"][key] ?
+                                data["scoreByField"][key]["avg"] : 0,
+                        }
+                        arr.push(obj);
+                    }
+                })
+                charts[3] = homeChartManager.renderRadar("radar-chart", arr, categoryName, insttName);
+            },
+            error: function (error) {
+                alert(error);
+            }
+        });
+
+        $.ajax({
+            url: `${contextPath}/instt/eval/stats/distributionByField/${insttId}?evlYear=${evlYear}`,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+                startLoading(2);
+            },
+            complete: function () {
+                stopLoading(2);
+                if (Object.keys(charts).length === 3) {
+                    stopLoading();
+                }
+            },
+            type: "GET",
+            success: function (data) {
+                var arr = []
+                Object.keys(data).forEach(key => {
+                    var obj = data[key];
+                    obj["institution"] = key;
+                    Object.keys(obj).forEach(el => {
+                        if (el.includes("기타")) {
+                            delete obj[el];
+                        }
+                    })
+                    arr.push(obj)
+                });
+                charts[2] = homeChartManager.renderStack("stack-column-chart", arr);
+            },
+            error: function (error) {
+                alert(error);
+            }
+        });
+
+        $.ajax({
+            url: `${contextPath}/instt/eval/stats/distributionByScore/${insttId}?evlYear=${evlYear}`,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+                startLoading(1);
+            },
+            complete: function () {
+                stopLoading(1);
+                if (Object.keys(charts).length === 3) {
+                    stopLoading();
+                }
+            },
+            type: "GET",
+            success: function (data) {
+                var index = 0;
+                if (totalScore > 80) {
+                    index = 0;
+                }
+                if (60 < totalScore && totalScore <= 80) {
+                    index = 1;
+                }
+                if (40 < totalScore && totalScore <= 60) {
+                    index = 2;
+                }
+                if (20 < totalScore && totalScore <= 40) {
+                    index = 3;
+                }
+                if (totalScore < 20) {
+                    index = 4;
+                }
+                var arr = homeChartManager.preprocess(data);
+                charts[1] = homeChartManager.renderColumn("column-chart", arr, index);
+            },
+            error: function (error) {
+                alert(error);
+            },
+        });
+
+        // homeChartManager.renderStack("stack-column-chart")
+    </script>
+</th:block>
+</body>

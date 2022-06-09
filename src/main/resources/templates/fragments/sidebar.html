@@ -1,0 +1,198 @@
+<div th:fragment="sidebar" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+     th:with="currentUser=${ #authentication.getPrincipal().getAccount()}" xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:th="http://www.thymeleaf.org">
+    <div id="sidebar" class="app-sidebar">
+        <div class="app-sidebar-content" data-scrollbar="true" data-height="100%">
+            <div class="menu">
+                <div class="menu-header">공통</div>
+                <div class="menu-item" th:classappend="${activeMenu == 'notice' ? 'active' : ''}">
+                    <a href="#" th:href="@{/commons/notices}" class="menu-link">
+                        <span class="menu-icon"><i class="fa fa-exclamation"></i></span>
+                        <span class="menu-text">공지사항</span>
+                    </a>
+                </div>
+                <div class="menu-item" th:classappend="${activeMenu == 'qna' ? 'active' : ''}">
+                    <a href="#" th:href="@{/commons/qnas}" class="menu-link">
+                        <span class="menu-icon"><i class="fa fa-edit"></i></span>
+                        <span class="menu-text">Q&A</span>
+                    </a>
+                </div>
+                <div class="menu-item" th:classappend="${activeMenu == 'faq' ? 'active' : ''}">
+                    <a href="#" th:href="@{/commons/faqs}" class="menu-link">
+                        <span class="menu-icon"><i class="fa fa-question"></i></span>
+                        <span class="menu-text">FAQ</span>
+                    </a>
+                </div>
+
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <div class="menu-divider"></div>
+                    <div class="menu-header">관리자</div>
+                    <div class="menu-item" th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}">
+                        <a href="#" th:href="@{/}" class="menu-link">
+                            <span class="menu-icon"><i class="fa fa-home"></i></span>
+                            <span class="menu-text">관리자 홈</span>
+                        </a>
+                    </div>
+                    <div class="menu-item has-sub" th:classappend="${activeMenu == 'account' ? 'active' : ''}">
+                        <a class="menu-link" href="#accountManager">
+                        <span class="menu-icon">
+                            <i class="fa fa-tasks"></i>
+                        </span>
+                            <span class="menu-text">사용자 및 권한 관리</span>
+                            <span class="menu-caret"><b class="caret"></b></span>
+                        </a>
+                        <div class="menu-submenu" id="accountManager">
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'account' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/account}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-users"></i></span>
+                                    <span class="menu-text">사용자관리</span>
+                                </a>
+                            </div>
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'institutionCategory' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/institutions/categories}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-sitemap"></i></span>
+                                    <span class="menu-text">기관유형 관리</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-item has-sub" th:classappend="${activeMenu == 'evalManagement' ? 'active' : ''}">
+                        <a class="menu-link" href="#indicesManager">
+                        <span class="menu-icon">
+                            <i class="fa fa-tasks"></i>
+                        </span>
+                            <span class="menu-text">평가 관리</span>
+                            <span class="menu-caret"><b class="caret"></b></span>
+                        </a>
+                        <div class="menu-submenu" id="indicesManager">
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'evalField' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/evalField}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-edit"></i></span>
+                                    <span class="menu-text">평가영역 관리</span>
+                                </a>
+                            </div>
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'evalIndex' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/evalIndex}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-edit"></i></span>
+                                    <span class="menu-text">평가지표 관리</span>
+                                </a>
+                            </div>
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'evalRate' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/evalRate}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-edit"></i></span>
+                                    <span class="menu-text">상대평가 비율설정</span>
+                                </a>
+                            </div>
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'evalSchedules' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/evalSchedules}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-calendar"></i></span>
+                                    <span class="menu-text">평가일정 관리</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-item" th:classappend="${activeMenu == 'targetInstitutions' ? 'active' : ''}">
+                        <a href="#" th:href="@{/admin/targetInstitutions}" class="menu-link">
+                            <span class="menu-icon"><i class="fa fa-sitemap"></i></span>
+                            <span class="menu-text">평가대상 기관 관리</span>
+                        </a>
+                    </div>
+                    <div class="menu-item" th:classappend="${activeMenu == 'eval' ? 'active' : ''}">
+                        <a href="#" th:href="@{/admin/eval}" class="menu-link">
+                            <span class="menu-icon"><i class="fa fa-edit"></i></span>
+                            <span class="menu-text">실태평가</span>
+                        </a>
+                    </div>
+                    <div class="menu-item" th:classappend="${activeMenu == 'objection' ? 'active' : ''}">
+                        <a href="#" th:href="@{/admin/objections}" class="menu-link">
+                            <span class="menu-icon"><i class="fa fa-gavel"></i></span>
+                            <span class="menu-text">이의신청 관리</span>
+                        </a>
+                    </div>
+                    <div class="menu-item" th:classappend="${activeMenu == 'attachFile' ? 'active' : ''}">
+                        <a href="#" th:href="@{/admin/attachFiles}" class="menu-link">
+                            <span class="menu-icon"><i class="fa fa-download"></i></span>
+                            <span class="menu-text">증빙자료 관리</span>
+                        </a>
+                    </div>
+                    <div class="menu-item has-sub" th:classappend="${activeMenu == 'statistic' ? 'active' : ''}">
+                        <a class="menu-link" href="#statisticManager">
+                        <span class="menu-icon">
+                            <i class="fa fa-user-chart"></i>
+                        </span>
+                            <span class="menu-text">통계 관리</span>
+                            <span class="menu-caret"><b class="caret"></b></span>
+                        </a>
+                        <div class="menu-submenu" id="statisticManager">
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'qualitativeRank' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/statistics/qualitativeRank}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-user-chart"></i></span>
+                                    <span class="menu-text">상대평가 순위조회</span>
+                                </a>
+                            </div>
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'progressStatus' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/statistics/progressStatus}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-user-chart"></i></span>
+                                    <span class="menu-text">평가진행 현황조회</span>
+                                </a>
+                            </div>
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'evaluationRank' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/statistics/evaluationRank}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-user-chart"></i></span>
+                                    <span class="menu-text">평가순위</span>
+                                </a>
+                            </div>
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'improvementRank' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/statistics/improvementRank}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-user-chart"></i></span>
+                                    <span class="menu-text">개선율 조회</span>
+                                </a>
+                            </div>
+                            <div class="menu-item" th:classappend="${subActiveMenu == 'statusNone' ? 'active' : ''}">
+                                <a href="#" th:href="@{/admin/statistics/statusNone}" class="menu-link">
+                                    <span class="menu-icon"><i class="fa fa-user-chart"></i></span>
+                                    <span class="menu-text">자체실적 미등록기관조회</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+
+                <th:block sec:authorize="hasAnyRole('COMMITTEE')">
+                    <div class="menu-divider"></div>
+                    <div class="menu-header">실태평가단</div>
+                    <div class="menu-item" th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}">
+                        <a href="#" th:href="@{/committee/dashboard}" class="menu-link">
+                            <span class="menu-icon"><i class="fa fa-home"></i></span>
+                            <span class="menu-text">평가단 홈</span>
+                        </a>
+                    </div>
+                    <div class="menu-item" th:classappend="${activeMenu == 'eval' ? 'active' : ''}">
+                        <a href="#" th:href="@{/committee/eval}" class="menu-link">
+                            <span class="menu-icon"><i class="fa fa-tasks"></i></span>
+                            <span class="menu-text">실태평가</span>
+                        </a>
+                    </div>
+                </th:block>
+
+                <th:block sec:authorize="hasRole('INSTITUTION')">
+                    <div class="menu-divider"></div>
+                    <div class="menu-header">피평가기관</div>
+                    <div class="menu-item" th:classappend="${activeMenu == 'dashboard' ? 'active' : ''}">
+                        <a href="#" th:href="@{/instt/dashboard}" class="menu-link">
+                            <span class="menu-icon"><i class="fa fa-home"></i></span>
+                            <span class="menu-text">기관 홈</span>
+                        </a>
+                    </div>
+                    <div class="menu-item" th:classappend="${activeMenu == 'eval' ? 'active' : ''}"
+                         th:if="${isTargetInstitution}">
+                        <a href="#" th:href="@{/instt/eval/instt/{id}(id=${currentUser?.institution?.id})}" class="menu-link">
+                            <span class="menu-icon"><i class="fa fa-tasks"></i></span>
+                            <span class="menu-text">실태평가 실적등록</span>
+                        </a>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>

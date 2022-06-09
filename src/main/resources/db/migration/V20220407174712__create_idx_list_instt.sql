@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX idx_uq_tb_rev_list_regist_mmg_sys_instt_info_instt_cd ON tb_rev_list_regist_mmg_sys_instt_info (instt_cd);

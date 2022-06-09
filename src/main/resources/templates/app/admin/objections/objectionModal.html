@@ -1,0 +1,57 @@
+<div class="modal fade" th:fragment="objection-modal" th:id="${'objectionModal' + evaluationResult.id}"
+     tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">이의 제기 의견 - 상세</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive mt-2">
+                    <table class="table text-center custom-table">
+                        <tbody>
+                            <input type="hidden" id="resultId" th:value="*{evaluationResult.id}">
+                            <tr>
+                                <th>기관명</th>
+                                <td th:text="${evaluationResult.institution.name}"></td>
+                            </tr>
+                            <tr>
+                                <th>평가년도</th>
+                                <td th:text="${evaluationResult.year}"></td>
+                            </tr>
+                            <tr>
+                                <th>평가지표명</th>
+                                <td th:text="${evaluationResult.evaluationIndex.fullName}"></td>
+                            </tr>
+                            <tr>
+                                <th>이의 제기 의견</th>
+                                <td th:utext="${evaluationResult.objection}"></td>
+                            </tr>
+                            <tr>
+                                <th><label for="objectionReview">이의 제기 검토 의견</label></th>
+                                <td>
+                                    <textarea class="w-100 mt-2" rows="4" id="objectionReview"
+                                              th:attrappend="disabled = ${currentYearToInt < 2021 || !(!schedules?.getSchedule(EvaluationStatus.OBJ_START)?.isNone &&
+                                                                        (schedules?.getSchedule(EvaluationStatus.OBJ_START)?.isActive ||
+                                                                            (evaluationResult.processStatus == EvaluationStatus.OBJ_START ||
+                                                                            evaluationResult.processStatus == EvaluationStatus.OBJ_END)))} ? 'disabled'"
+                                              th:utext="${#strings.isEmpty(evaluationResult.objectionReview)} ? '' : ${evaluationResult.objectionReview}"
+                                              th:value="${evaluationResult.objectionReview}">
+                                    </textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary objection-save-btn"
+                        th:if="${currentYearToInt > 2020 && !schedules?.getSchedule(EvaluationStatus.OBJ_START)?.isNone &&
+                                (schedules?.getSchedule(EvaluationStatus.OBJ_START)?.isActive ||
+                                    (evaluationResult.processStatus == EvaluationStatus.OBJ_START ||
+                                    evaluationResult.processStatus == EvaluationStatus.OBJ_END))}">저장</button>
+                <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,1 @@
+DROP TABLE tb_rev_file_attchement;

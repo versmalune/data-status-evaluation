@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      th:with="EvaluationStatus=${T(kr.co.data_status_evaluation.model.enums.EvaluationStatus)}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>증빙자료 관리</h1>
+        </div>
+
+        <div class="content-section">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="by-category-tab" data-bs-toggle="tab" data-bs-target="#by-category"
+                            type="button" th:classappend="${searchParam.getTab() == 'category' ? 'active' : ''}"
+                            role="tab" aria-controls="by-catogory" aria-selected="true">기관유형별 조회
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="by-index-tab" data-bs-toggle="tab" data-bs-target="#by-index"
+                            type="button" th:classappend="${searchParam.getTab() == 'index' ? 'active' : ''}"
+                            role="tab" aria-controls="by-index" aria-selected="false">지표별 조회
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade" id="by-category" role="tabpanel" aria-labelledby="home-tab"
+                     th:classappend="${searchParam.getTab() == 'category' ? 'show active' : ''}">
+                    <div class="search-form-area">
+                        <form>
+                            <input type="hidden" name="tab" value="category">
+                            <div class="row justify-content-end align-items-end">
+                                <div class="col-sm-12 col-md-2">
+                                    <div class="form-group">
+                                        <form id="yearForm">
+                                            <label for="evlYear">평가년도</label>
+                                            <select id="evlYear" name="year" class="form-select">
+                                                <option th:each="y: ${evlYears}" th:value="${y}" th:text="${y}"
+                                                        th:selected="${#strings.equals(y, searchParam.year)}"></option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-primary mt-2" type="submit">검색</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div>전체: <span th:text="${#numbers.formatDecimal(attachFileCategoryVos.size(), 0, 'COMMA', 0, 'POINT')}"></span>건</div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table table text-center">
+                            <thead>
+                            <tr>
+                                <th>번호</th>
+                                <th>기관유형코드</th>
+                                <th>기관유형명</th>
+                                <th>증빙자료</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <th:block th:if="${attachFileCategoryVos.isEmpty()}">
+                                <tr>
+                                    <td colspan="4">데이터가 존재하지 않습니다.</td>
+                                </tr>
+                            </th:block>
+                            <th:block th:unless="${attachFileCategoryVos.isEmpty()}">
+                                <tr th:each="attachFileCategoryVo, iter : ${attachFileCategoryVos}">
+                                    <td th:text="${iter.index+1}"></td>
+                                    <td th:text="${attachFileCategoryVo.code}"></td>
+                                    <td th:text="${attachFileCategoryVo.name}"></td>
+                                    <td th:data-tab="'category'" th:data-name="${attachFileCategoryVo.name}" th:data-id="${attachFileCategoryVo.id}">
+                                        <div class="btn file-download-btn" th:classappend="${attachFileCategoryVo.hasAttachFile ? 'btn-primary' : 'btn-secondary'}">일괄 다운로드</div>
+                                    </td>
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="by-index" role="tabpanel" aria-labelledby="profile-tab"
+                     th:classappend="${searchParam.getTab() == 'index' ? 'show active' : ''}">
+                    <div class="search-form-area">
+                        <form>
+                            <input type="hidden" name="tab" value="index">
+                            <div class="row justify-content-end align-items-end">
+                                <div class="col-sm-12 col-md-2">
+                                    <div class="form-group">
+                                        <form>
+                                            <label for="evlYear-index-rank">평가년도</label>
+                                            <select id="evlYear-index-rank" name="year" class="form-select">
+                                                <option th:each="y: ${evlYears}" th:value="${y}" th:text="${y}"
+                                                        th:selected="${#strings.equals(y, searchParam.year)}"></option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-2">
+                                    <div class="form-group">
+                                        <label for="field">평가영역</label>
+                                        <select class="form-select" id="field" name="field">
+                                            <option value="">전체</option>
+                                            <option th:each="field: ${fields}" th:value="${field.id}" th:text="${field.name}"
+                                                    th:selected="${#strings.equals(field.id, searchParam.field)}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-2" id="index-col">
+                                    <div class="form-group">
+                                        <label for="indexNm">평가지표명</label>
+                                        <input type="text" id="indexNm" th:field="*{searchParam.indexNm}" class="search-text form-control">
+                                    </div>
+                                </div>
+
+<!--                                <div class="col-sm-12 col-md-2">-->
+<!--                                    <div class="form-group">-->
+<!--                                        <label for="attachFile">자료 첨부가능여부</label>-->
+<!--                                        <select class="form-select" id="attachFile" name="attachFile">-->
+<!--                                            <option value="">전체</option>-->
+<!--                                            <option value="Y" th:selected="${searchParam.attachFile == 'Y'}">가능</option>-->
+<!--                                            <option value="N" th:selected="${searchParam.attachFile == 'N'}">불가능</option>-->
+<!--                                        </select>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+                                <div class="col-auto">
+                                    <button class="btn btn-primary mt-2" type="submit">검색</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div>전체: <span th:text="${#numbers.formatDecimal(attachFileIndexVos.size(), 0, 'COMMA', 0, 'POINT')}"></span>건</div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table table text-center">
+                            <thead>
+                            <tr>
+                                <th>번호</th>
+                                <th>평가영역</th>
+                                <th>지표구분</th>
+                                <th>평가지표명</th>
+<!--                                <th>자료 첨부가능여부</th>-->
+                                <th>증빙자료</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <th:block th:if="${attachFileIndexVos.isEmpty()}">
+                                <tr>
+                                    <td colspan="5">데이터가 존재하지 않습니다.</td>
+                                </tr>
+                            </th:block>
+                            <th:block th:unless="${attachFileIndexVos.isEmpty()}">
+                                <tr th:each="attachFileIndexVo, iter : ${attachFileIndexVos}">
+                                    <td th:text="${iter.index+1}"></td>
+                                    <td th:text="${attachFileIndexVo.fieldNm}"></td>
+                                    <td th:text="${attachFileIndexVo.evlType == null ? '가감점' : attachFileIndexVo.evlType == 'QUANTITATION' ? '정량평가' : '정성평가'}"></td>
+                                    <td th:text="${attachFileIndexVo.indexNo + '. ' + attachFileIndexVo.indexNm}"></td>
+<!--                                    <td th:text="${attachFileIndexVo.attachFile == 'Y' ? '가능' : '불가능'}"></td>-->
+                                    <td th:data-tab="'index'" th:data-name="${attachFileIndexVo.indexNm}" th:data-id="${attachFileIndexVo.id}">
+                                        <div class="btn file-download-btn"
+                                             th:classappend="${attachFileIndexVo.hasAttachFile ? 'btn-primary' : 'btn-secondary'}">
+                                            일괄 다운로드
+                                        </div>
+                                    </td>
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/admin/field-manager.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        var evlYear = "[[${evlYear}]]";
+        /*]]>*/
+    </script>
+    <script th:inline="javascript">
+        var Table = new Table();
+
+        var $container = $("#myTabContent");
+
+        var options = {
+            contextPath : contextPath,
+            evlYear : evlYear,
+            container : $container,
+        }
+
+        new FieldManager(options);
+    </script>
+</th:block>
+</body>

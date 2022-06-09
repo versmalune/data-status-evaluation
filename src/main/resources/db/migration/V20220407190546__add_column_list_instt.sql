@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_list_regist_mmg_sys_instt_info ADD COLUMN before_instt_cd VARCHAR(50);

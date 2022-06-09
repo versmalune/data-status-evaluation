@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_instt_info ADD COLUMN deleted CHAR(1);

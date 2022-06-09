@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      th:with="EvaluationStatus=${T(kr.co.data_status_evaluation.model.enums.EvaluationStatus)}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>평가순위</h1>
+        </div>
+
+        <div class="content-section">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="by-category-tab" data-bs-toggle="tab"
+                            data-bs-target="#by-category" th:classappend="${searchParam.getTab() == 'category' ? 'active' : ''}"
+                            type="button" role="tab" aria-controls="by-catogory" aria-selected="true">기관유형별 평가순위
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="by-field-tab" data-bs-toggle="tab" data-bs-target="#by-field"
+                            type="button" th:classappend="${searchParam.getTab() == 'field' ? 'active' : ''}"
+                            role="tab" aria-controls="by-field" aria-selected="false">지표영역별 평가순위
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade" id="by-category" role="tabpanel" aria-labelledby="home-tab"
+                     th:classappend="${searchParam.getTab() == 'category' ? 'show active' : ''}">
+                    <div class="search-form-area">
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-primary me-3 instt-excel-download-btn">
+                                <i class="fa fa-download"></i> 엑셀 다운로드
+                            </button>
+                        </div>
+                        <form>
+                            <input type="hidden" name="tab" value="category">
+                            <div class="row justify-content-end align-items-end">
+                                <div class="col-sm-12 col-md-2">
+                                    <div class="form-group">
+                                        <form id="yearForm">
+                                            <label for="evlYear">평가년도</label>
+                                            <select id="evlYear" name="year" class="form-select">
+                                                <option th:each="y: ${evlYears}" th:value="${y}" th:text="${y}"
+                                                        th:selected="${#strings.equals(y, searchParam.year)}"></option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-2">
+                                    <div class="form-group">
+                                        <label for="type">기관유형</label>
+                                        <select class="form-select" id="type" name="type">
+                                            <option value="" selected>전체</option>
+                                            <option th:each="category: ${categories}" th:value="${category.getCode()}"
+                                                    th:selected="${category.getCode() == searchParam.type}" th:text="${category.getName()}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-primary mt-2" type="submit">검색</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div>전체: <span th:text="${#numbers.formatDecimal(institutions.size(), 0, 'COMMA', 0, 'POINT')}"></span>건</div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table table text-center">
+                            <thead>
+                            <tr>
+                                <th>기관유형</th>
+                                <th>기관명</th>
+                                <th>평가진행상태</th>
+                                <th>환산전 점수</th>
+                                <th>환산후 점수</th>
+                                <th th:each="field: ${fields}" th:text="${field.name}"></th>
+                                <th>평가순위</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <th:block th:if="${institutions.isEmpty()}">
+                                <tr>
+                                    <td th:colspan="${fields.size+7}">데이터가 존재하지 않습니다.</td>
+                                </tr>
+                            </th:block>
+                            <th:block th:unless="${institutions.isEmpty()}">
+                                <tr th:each="institution : ${institutions}">
+                                    <td th:text="${institution.category}"></td>
+                                    <td th:text="${institution.name}"></td>
+                                    <td th:text="${institution.processStatus.title}"></td>
+                                    <td th:text="${#numbers.formatDecimal(institution.score, 1, 2)}"></td>
+                                    <td th:text="${#numbers.formatDecimal(institution.standardScore, 1, 2)}"></td>
+                                    <td th:each="field: ${fields}"
+                                        th:text="${fieldScoreMap.get(field.name) != null ? #numbers.formatDecimal(fieldScoreMap.get(field.name).get(institution.id), 1, 2) : '0.00'}"></td>
+                                    <td th:text="${institution.ranking}"></td>
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="by-field" role="tabpanel" aria-labelledby="profile-tab"
+                     th:classappend="${searchParam.getTab() == 'field' ? 'show active' : ''}">
+                    <div class="search-form-area">
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-primary me-3 excel-download-btn">
+                                <i class="fa fa-download"></i> 엑셀 다운로드
+                            </button>
+                        </div>
+                        <form>
+                            <input type="hidden" name="tab" value="field">
+                            <div class="row justify-content-end align-items-end">
+                                <div class="col-sm-12 col-md-2">
+                                    <div class="form-group">
+                                        <form>
+                                            <label for="evlYear-index-rank">평가년도</label>
+                                            <select id="evlYear-index-rank" name="year" class="form-select">
+                                                <option th:each="y: ${evlYears}" th:value="${y}" th:text="${y}"
+                                                        th:selected="${#strings.equals(y, searchParam.year)}"></option>
+                                            </select>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-2">
+                                    <div class="form-group">
+                                        <label for="type">기관유형</label>
+                                        <select class="form-select" id="type-index-rank" name="type">
+                                            <option value="" selected>전체</option>
+                                            <option th:each="category: ${categories}" th:value="${category.getCode()}"
+                                                    th:selected="${category.getCode() == searchParam.type}" th:text="${category.getName()}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-2">
+                                    <div class="form-group">
+                                        <label for="field">평가영역</label>
+                                        <select class="form-select" id="field" name="field">
+                                            <option th:each="field: ${fields}" th:value="${field.id}"
+                                                    th:selected="${#strings.equals(field.id, searchParam.field)}"
+                                                    th:text="${field.name}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12 col-md-2" id="index-col">
+                                    <div class="form-group">
+                                        <label for="index">평가지표명</label>
+                                        <select class="form-select" id="index" name="index"></select>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-primary mt-2" type="submit">검색</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div>전체: <span th:text="${#numbers.formatDecimal(indexScores.size(), 0, 'COMMA', 0, 'POINT')}"></span>건</div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table table text-center">
+                            <thead>
+                            <tr>
+                                <th>기관유형</th>
+                                <th>기관명</th>
+                                <th>평가영역</th>
+                                <th>평가지표명</th>
+                                <th>평가점수</th>
+                                <th>평가순위</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <th:block th:if="${indexScores.isEmpty()}">
+                                <tr>
+                                    <td colspan="6">데이터가 존재하지 않습니다.</td>
+                                </tr>
+                            </th:block>
+                            <th:block th:unless="${indexScores.isEmpty()}">
+                                <tr th:each="indexScore : ${indexScores}">
+                                    <td th:text="${indexScore.category}"></td>
+                                    <td th:text="${indexScore.institution}"></td>
+                                    <td th:text="${indexScore.field}"></td>
+                                    <td th:text="${indexScore.index}"></td>
+                                    <td th:text="${indexScore.score == null ? 'N/A' : #numbers.formatDecimal(indexScore.score, 1, 2)}"></td>
+                                    <td th:text="${indexScore.ranking == null ? 'N/A' : indexScore.ranking}"></td>
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/statistics/field-index-manager.js}"></script>
+    <script th:inline="javascript">
+        var Table = new Table();
+        /*<![CDATA[*/
+        var indexMap = /*[[${indexMap}]]*/ {}
+        /*]]>*/
+        var searchParams = new URLSearchParams(window.location.search)
+        var selectedField = $("#field option:selected").text();
+        /*<![CDATA[*/
+        var contextPath = /*[[${contextPath}]]*/ ""
+        /*]]>*/
+        initIndexSelect();
+
+        function initIndexSelect() {
+            //var selectedField = $("#field option:selected").text();
+            if (indexMap[selectedField].length === 0) {
+                $("#index").empty().append(new Option("---", 0));
+            }
+            $("#index").empty();
+            indexMap[selectedField].forEach(el => {
+                $("#index").append(new Option(el.name, el.id));
+                if (el.id == searchParams.get("index")) {
+                    $(`#index option[value=${el.id}]`).attr("selected", "selected");
+                }
+            })
+        }
+        /*<![CDATA[*/
+        var year = /*[[${searchParam.year}]]*/ {}
+        var query = /*[[${searchParam.queryParams}]]*/ {}
+        /*]]>*/
+
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        $('.instt-excel-download-btn').on("click", function() {
+            var fileNm = year + "년_기관유형별_평가순위";
+            fileNm += "_" + new Date().toISOString().slice(0, 10).replaceAll("-", "");
+            $.ajax({
+                url: contextPath + '/admin/statistics/insttType/evaluationRank/excelDownload?' + query,
+                type: "GET",
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                xhrFields:{
+                    responseType: 'blob'
+                },
+                success: function (result) {
+                    var blob = result;
+                    var downloadUrl = URL.createObjectURL(blob);
+                    var a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = fileNm + ".xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                },
+                error: function (e) {
+                    window.alert("다운로드중 에러가 발생했습니다.")
+                }
+            });
+        });
+
+        $('.excel-download-btn').on("click", function() {
+            var fileNm = year + "년_지표영역별_평가순위";
+            fileNm += "_" + new Date().toISOString().slice(0, 10).replaceAll("-", "");
+            $.ajax({
+                url: contextPath + '/admin/statistics/evaluationRank/excelDownload?' + query,
+                type: "GET",
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                xhrFields:{
+                    responseType: 'blob'
+                },
+                success: function (result) {
+                    var blob = result;
+                    var downloadUrl = URL.createObjectURL(blob);
+                    var a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = fileNm + ".xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                },
+                error: function (e) {
+                    window.alert("다운로드중 에러가 발생했습니다.")
+                }
+            });
+        });
+
+        var options = {
+            index : indexMap,
+            contextPath : `${contextPath}`
+        }
+
+        new FieldIndexManager(options);
+    </script>
+</th:block>
+</body>

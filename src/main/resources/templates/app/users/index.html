@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container mt-1 mb-1">
+    <div class="table-responsive">
+        <h1>사용자 목록</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="align-middle text-center" scope="col" rowspan="2">#</th>
+                    <th class="align-middle text-center" scope="col" rowspan="2">권한</th>
+                    <th class="align-middle text-center" scope="col" rowspan="2">평가업무</th>
+                    <th class="align-middle text-center" scope="col" rowspan="2">공공데이터 포털 업무</th>
+                    <th class="align-middle text-center" scope="col" rowspan="2">이름</th>
+                    <th class="align-middle text-center" scope="col" rowspan="2">이메일</th>
+                    <th class="text-center" scope="col" colspan="2">소속</th>
+                    <th class="align-middle text-center" scope="col" rowspan="2">전화번호</th>
+                    <th class="align-middle text-center" scope="col" rowspan="2"></th>
+                </tr>
+                <tr>
+                    <th class="text-center" scope="col">기관</th>
+                    <th class="text-center" scope="col">부서</th>
+                </tr>
+            </thead>
+            <tbody>
+            <th:block th:if="${accounts.getContent().isEmpty()}">
+                <tr>
+                    <td colspan="10">데이터가 존재하지 않습니다.</td>
+                </tr>
+            </th:block>
+            <th:block th:unless="${accounts.getContent().isEmpty()}">
+                <tr th:each="account: ${accounts.getContent()}">
+                    <th class="text-center" scope="row" th:text="${account.getId()}"/>
+                    <td class="text-center" th:text="${account.getAuthorString()}"/>
+                    <td class="text-center" th:text="${account.getJobString()}"/>
+                    <td/>
+                    <td class="text-center" th:text="${account.getFlnm()}"/>
+                    <td class="text-center" th:text="${account.getEmail()}"/>
+                    <td class="text-center" th:text="${account.getInsttId()}"/>
+                    <td class="text-center" th:text="${account.getOgdpDept()}"/>
+                    <td class="text-center" th:text="${account.getTelno()}"/>
+                    <td class="text-center">
+                        <div>
+                            <button class="btn-sm btn-secondary">권한 업무 수정</button>
+                            <button class="btn-sm btn-secondary">해당사용자로 로그인</button>
+                        </div>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <a class="btn btn-primary float-end" href="#" th:href="@{/private/users/new}">사용자 추가</a>
+        </div>
+    </div>
+
+</div>
+</body>

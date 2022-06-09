@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_evl_idx MODIFY idx_dc STRING;

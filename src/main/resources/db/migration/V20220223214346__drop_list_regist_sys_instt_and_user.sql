@@ -1,0 +1,2 @@
+DROP TABLE tb_rev_list_regist_mmg_sys_instt_info;
+DROP TABLE tb_rev_list_regist_mmg_sys_instt_user_info;

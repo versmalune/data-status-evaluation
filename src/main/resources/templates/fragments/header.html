@@ -1,0 +1,25 @@
+<head th:fragment="header" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <title>공공데이터 제공운영 실태평가 시스템</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <link rel="icon" type="image/png" sizes="16x16" href="#" th:href="@{/imgs/favicon.png}">
+
+    <link rel="stylesheet" type="text/css" href="#" th:href="@{/css/app.css}" />
+    <link rel="stylesheet" type="text/css" href="#" th:href="@{/css/bootstrap-datepicker3.css}" />
+    <link rel="stylesheet" type="text/css" href="#" th:href="@{/css/daterangepicker.css}" />
+    <link rel="stylesheet" type="text/css" href="#" th:href="@{/css/summernote/summernote-lite.css}" />
+<!--    개발중 CDN 활용, 이후 Static 내부에 파일 저장 필요-->
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>-->
+
+    <!-- DatePicker CDN    -->
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.standalone.min.css" integrity="sha512-TQQ3J4WkE/rwojNFo6OJdyu6G8Xe9z8rMrlF9y7xpFbQfW5g8aSWcygCQ4vqRiJqFsDsE1T6MoAOMJkFXlrI9A==" crossorigin="anonymous" referrerpolicy="no-referrer" />-->
+
+    <!-- DateRangePicker CDN    -->
+<!--    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />-->
+</head>

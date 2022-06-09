@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+>
+<head th:replace="fragments/header :: header">Header</head>
+
+<body>
+<div id="app" class="app">
+    <div th:replace="fragments/nav :: nav"></div>
+
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <div class="app-content">
+        <div layout:fragment="content">Page Content</div>
+    </div>
+
+    <div th:replace="fragments/footer"></div>
+</div>
+<div th:replace="fragments/ajaxSpinner :: ajax-spinner"></div>
+<th:block th:replace="fragments/scripts :: scripts"/>
+<th:block layout:fragment="script" th:with="contextPath=${@environment.getProperty('server.servlet.context-path')}"/>
+</body>
+</html>

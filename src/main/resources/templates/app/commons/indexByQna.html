@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<div layout:fragment="content" class="main-content" th:with="QnaStatusEnums=${T(kr.co.data_status_evaluation.model.enums.QnaStatus)},
+        QnaSearchType=${T(kr.co.data_status_evaluation.model.enums.QnaSearchType)}">
+    <div class="content-wrap">
+        <div class="title-section">
+            <div class="d-flex">
+                <h1>Q&A</h1>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="search-form-area">
+                <form th:object="${boardSearchParam}" th:action="@{/commons/qnas}">
+                    <div class="row justify-content-end align-items-center">
+                        <div class="col-auto">
+                            <div class="form-check form-check-inline">
+                                <span>상태: </span>
+                                <input type="radio" class="ms-2" id="whole" name="qnaStatus" value="" checked>
+                                <label for="whole">전체</label>
+                                <th:block th:each="qnaStatus: ${QnaStatusEnums.values()}">
+                                    <input type="radio" class="ms-2" th:field="*{qnaStatus}" th:value="${qnaStatus}"
+                                           th:id="${qnaStatus}"
+                                           th:checked="${qnaStatus == qnaStatus}">
+                                    <label th:for="${qnaStatus}" th:text="${qnaStatus.getTitle()}"></label>
+                                </th:block>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3">
+                            <div class="form-group">
+                                <label th:for="qnaSearchType" class="d-none"></label>
+                                <select class="form-select" th:field="*{qnaSearchType}">
+                                    <option th:each="qnaSearchType: ${QnaSearchType.values()}"
+                                            th:value="${qnaSearchType}" th:text="${qnaSearchType.getTitle()}"
+                                            th:selected="${qnaSearchType == QnaSearchType}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3">
+                            <div class="form-group">
+                                <label for="searchWord" class="d-none"></label>
+                                <input id="searchWord" type="text" class="form-control" placeholder="검색어" name="searchWord">
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary" href="#">검색</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div>전체: <span th:text="${pagination.totalElements}"></span>건</div>
+
+            <div class="table-responsive mt-3">
+                <table class="table custom-table">
+                    <caption></caption>
+                    <thead class="align-middle text-center">
+                    <tr>
+                        <th style="width: 5%">번호</th>
+                        <th style="width: 5%">기관코드</th>
+                        <th style="width: 20%">기관명</th>
+                        <th style="width: 30%">제목</th>
+                        <th style="width: 10%">작성자</th>
+                        <th style="width: 10%">등록일자</th>
+                        <th style="width: 10%">상태</th>
+                    </tr>
+                    </thead>
+                    <tbody class="align-middle text-center">
+                    <tr class="clickable-row" th:attr="data-url=@{'/commons/' + ${qna.id}}" th:each="qna, iter: ${qnas}">
+                        <td th:text="${pagination.getTotalElements() - (pagination.getPageNumber() * pagination.getPageSize() + iter.index)}"></td>
+                        <td th:text="${qna.getAccount()?.getInstitution()?.getCode()}"></td>
+                        <td th:text="${qna.getAccount()?.getInstitution()?.getName()}"></td>
+                        <td class="text-start" th:utext="${qna.getSj()}"></td>
+                        <td th:text="${qna.getAccount()?.getName()}"></td>
+                        <td th:text="${#dates.format(qna.createdAt, 'yyyy-MM-dd')}"></td>
+                        <td th:if="${qna.getAnswer() != null}"><span class="badge bg-success">답변완료</span></td>
+                        <td th:unless="${qna.getAnswer() != null}"><span class="badge bg-secondary">접수</span></td>
+                    </tr>
+                    <tr th:if="${#lists.size(qnas) < 1}">
+                        <td colspan="7">데이터가 존재하지 않습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a sec:authorize="isAuthenticated()" class="btn btn-primary" href="#" th:href="@{/commons/new?boardType=QNA}">등록</a>
+            </div>
+            <div th:replace="fragments/pagination :: pagination"></div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script>
+        new Table();
+    </script>
+</th:block>
+</body>

@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_account ADD COLUMN instt_cd VARCHAR(30);

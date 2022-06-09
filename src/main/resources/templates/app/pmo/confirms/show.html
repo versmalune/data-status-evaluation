@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container mt-1 mb-1">
+  <div th:replace="app/opinions/_newModal :: _newModal"></div>
+  <div th:replace="app/opinions/_detailModal :: _detailModal"></div>
+  <div class="table-responsive">
+    <table class="table table-borderless">
+      <thead>
+        <tr class="grey-bg white-text">
+          <th>기관명</th>
+          <th>시스템명</th>
+          <th>DB명</th>
+          <th>담당자</th>
+          <th>이메일</th>
+          <th>전화번호</th>
+          <th>의뢰 횟수</th>
+          <th>의뢰 날짜</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>해양수산부</td>
+          <td>귀어귀촌종합센터</td>
+          <td>Sealife DB</td>
+          <td>홍길동</td>
+          <td>silee@korea.co.kr</td>
+          <td>02-1234-5678</td>
+          <td>2</td>
+          <td>2021-01-12 12:01:23</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-end">
+    <table class="table-bordered align-middle">
+      <tbody>
+        <tr>
+          <th class="p-2">데이터 품질관리 기반(5점)</th>
+        </tr>
+      </tbody>
+    </table>
+    <div>
+      <a class="btn btn-primary" href="#" th:href="@{/pmo/confirms}">임시저장</a>
+      <a class="btn btn-primary ms-2" href="#" th:href="@{/pmo/confirms}">점검완료</a>
+    </div>
+  </div>
+    <div th:each="num: ${#numbers.sequence(1, 5)}">
+      <div class="table-responsive mt-2">
+        <table class="table table-borderless">
+          <thead class="grey-bg white-text">
+            <tr>
+              <th colspan="2" th:text="${num} + '. 기관의 연간 데이터 품질관리 계획서'"></th>
+              <th rowspan="2" class="align-middle">
+                <div class="d-flex justify-content-end">
+                  <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#detailModal">의견 확인</button>
+                </div>
+              </th>
+            </tr>
+            <tr>
+              <td colspan="2" th:text="'데이터 품질관리 계획서를 제출하였는가?'"></td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>담당자 답변</td>
+              <td colspan="2">
+                <input class="form-check-input" type="radio" name="answerYN" id="answerY">
+                <label class="form-check-label" for="answerY">
+                  예
+                </label>
+                <input class="form-check-input" type="radio" name="answerYN" id="answerN">
+                <label class="form-check-label" for="answerN">
+                  아니오
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>증빙자료 업로드<br/><span class="text-danger">품질관리계획서(1부)</span></td>
+              <td colspan="2" class="align-middle">
+                <span class="text-decoration-underline font-weight-bold">(해양수산부)품질관리계획서_V1.3.xlsx</span>
+              </td>
+            </tr>
+            <tr>
+              <td>점검 결과</td>
+              <td colspan="2">
+                <input class="form-check-input" type="radio" name="satisfiedYN" id="satisfiedY">
+                <label class="form-check-label" for="satisfiedY">
+                  충족
+                </label>
+                <input class="form-check-input" type="radio" name="satisfiedYN" id="satisfiedN">
+                <label class="form-check-label" for="satisfiedN">
+                  미충족
+                </label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <div>
+
+  </div>
+</div>

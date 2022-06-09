@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="alert alert-danger d-flex align-items-center" th:if="${message != null}">
+            <span class="h4 mb-0 me-2" th:utext="${message}"></span>
+            <a th:href="@{/admin/evalRate}" class="btn btn-danger">상대평가 비율설정 화면으로 이동</a>
+        </div>
+
+        <div class="title-section">
+            <div class="d-flex">
+                <div class="form-group">
+                    <label for="year-select" class="d-none"></label>
+                    <select id="year-select" class="form-select-lg" disabled>
+                        <option th:each="evalYear : ${evalYears}" th:value="${evalYear}" th:text="${evalYear}"
+                                th:selected="${#strings.equals(searchParam.year, evalYear)}"></option>
+                    </select>
+                </div>
+                <h1>년 평가지표 관리</h1>
+            </div>
+        </div>
+
+        <div>전체: <span th:text="${evalIndices.totalElements}"></span>건</div>
+
+        <div class="content-section">
+            <div class="table-responsive mt-2">
+                <table class="table text-center custom-table">
+                    <caption></caption>
+                    <thead>
+                    <tr>
+                        <th>지표구분</th>
+                        <th>평가지표명</th>
+                        <th th:each="category: ${institutionCategories}"
+                            th:text="${category.name}"></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:if="${evalIndices.isEmpty()}">
+                        <tr>
+                            <td th:colspan="${institutionCategories.size()+3}">데이터가 존재하지 않습니다.</td>
+                        </tr>
+                    </th:block>
+                    <th:block th:unless="${evalIndices.isEmpty()}">
+                        <tr class="clickable-row" th:attr="data-url=@{'/admin/evalIndex/' + ${evalIndex.id}}"
+                            th:each="evalIndex, iter : ${evalIndices}">
+                            <td th:text="${evalIndex.type == null ? '가감점' : evalIndex.type?.title}"></td>
+                            <td th:text="${evalIndex.fullName}"></td>
+                            <td th:each="category: ${institutionCategories}">
+                                <i class="fa fa-light" th:classappend="${evalIndex.isAssigned(category)} ? 'fa-check' : 'fa-minus'"></i>
+                            </td>
+                            <td>
+                                <button class="btn btn-delete"
+                                        th:classappend="${isDeletableIndices[iter.index].equals('Y')} ? 'remove-btn text-danger' : 'remove-impossible text-dark'"
+                                        th:attr="form=${isDeletableIndices[iter.index].equals('Y')} ? 'remove-form-'+${evalIndex.id}, type=${isDeletableIndices[iter.index].equals('Y')} ? 'submit' : 'button'">
+                                    <i class="fa fa-times"></i> 삭제
+                                </button>
+                                <form th:id="'remove-form-'+${evalIndex.id}"
+                                      action="#" th:action="@{/admin/evalIndex/{id}/delete(id=${evalIndex.id})}" method="post">
+                                </form>
+                            </td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <a class="btn btn-primary" href="#" th:href="@{/admin/evalIndex/new}">등록</a>
+            </div>
+        </div>
+        <div th:replace="fragments/pagination :: pagination"></div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script>
+        var Table = new Table();
+
+        $("#year-select").on("change", function () {
+            location.href = location.pathname + "?year=" + $(this).val();
+        });
+        $("#year-select").attr("disabled", false);
+
+        $(".remove-impossible").on("click", function () {
+            alert("최종완료된 평가가 존재하므로 해당 지표를 삭제할 수 없습니다.");
+        })
+    </script>
+</th:block>
+</body>

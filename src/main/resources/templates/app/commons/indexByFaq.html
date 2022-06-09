@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<div layout:fragment="content" class="main-content"
+     th:with="SearchType=${T(kr.co.data_status_evaluation.model.enums.SearchType)}">
+    <div class="content-wrap">
+        <div class="title-section">
+            <div class="d-flex">
+                <h1>FAQ</h1>
+            </div>
+        </div>
+
+        <div class="search-form-area">
+            <form th:object="${boardSearchParam}" action="#" th:action="@{/commons/faqs}">
+                <div class="row justify-content-end align-items-end">
+                    <div class="col-sm-12 col-md-3">
+                        <div class="form-group">
+                            <label th:for="searchType" class="d-none"></label>
+                            <select class="form-select" th:field="*{searchType}">
+                                <option th:each="searchType: ${SearchType.values()}" th:value="${searchType}"
+                                        th:text="${searchType.getTitle()}"
+                                        th:selected="${searchType == SearchType}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-3">
+                        <div class="form-group">
+                            <label for="searchWord" class="d-none"></label>
+                            <input id="searchWord" type="text" class="form-control" placeholder="검색어" name="searchWord">
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary" href="#">검색</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div>전체: <span th:text="${pagination.totalElements}"></span>건</div>
+
+        <div class="table-responsive mt-3">
+            <table class="table custom-table">
+                <caption></caption>
+                <thead class="align-middle text-center">
+                <tr>
+                    <th style="width: 10%">번호</th>
+                    <th style="width: 50%">제목</th>
+                    <th style="width: 10%">작성자</th>
+                    <th style="width: 20%">등록일자</th>
+                    <th style="width: 10%">조회수</th>
+                </tr>
+                </thead>
+                <tbody class="align-middle text-center">
+                <tr class="clickable-row text-center" th:attr="data-url=@{'/commons/' + ${faq.getId()}}"
+                    th:each="faq, iter: ${faqs}">
+                    <td th:text="${pagination.getTotalElements() -
+                        (pagination.getPageNumber() * pagination.getPageSize() + iter.index)}"></td>
+                    <td class="text-start" th:utext="${faq.getSj()}"></td>
+                    <td th:text="${faq.getAccount()?.getName()}"></td>
+                    <td th:text="${#dates.format(faq.createdAt,'yyyy-MM-dd')}"></td>
+                    <td th:text="${faq.getViewCount()}"></td>
+                </tr>
+                <tr th:if="${#lists.size(faqs) <= 0}">
+                    <td colspan="5">데이터가 존재하지 않습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-end" sec:authorize="hasRole('ROLE_ADMIN')">
+            <a class="btn btn-primary" href="#" th:href="@{/commons/new?boardType=FAQ}">등록</a>
+        </div>
+        <div th:replace="fragments/pagination :: pagination"></div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script>
+        new Table();
+    </script>
+</th:block>
+</body>

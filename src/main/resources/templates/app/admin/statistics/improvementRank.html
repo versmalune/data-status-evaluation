@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      th:with="EvaluationStatus=${T(kr.co.data_status_evaluation.model.enums.EvaluationStatus)}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>기관유형별 개선률 조회</h1>
+        </div>
+
+        <div class="search-form-area">
+            <form>
+                <div class="row justify-content-end align-items-end">
+                    <div class="col-sm-12 col-md-2">
+                        <div class="form-group">
+                            <form id="yearForm">
+                                <label for="evlYear">평가년도</label>
+                                <select id="evlYear" name="year" class="form-select">
+                                    <option th:each="y: ${evlYears}" th:value="${y}" th:text="${y}"
+                                            th:selected="${#strings.equals(y, searchParam.year)}"></option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-2">
+                        <div class="form-group">
+                            <label for="type">기관유형</label>
+                            <select class="form-select" id="type" name="type">
+                                <option value="" selected>전체</option>
+                                <option th:each="category: ${categories}" th:value="${category.getCode()}"
+                                        th:selected="${category.getCode() == searchParam.type}" th:text="${category.getName()}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-2">
+                        <div class="form-group">
+                            <label for="field">평가영역</label>
+                            <select class="form-select" id="field" name="field">
+                                <option value="" selected>전체</option>
+                                <option th:each="field: ${fields}" th:value="${field.id}"
+                                        th:selected="${#strings.equals(field.id, searchParam.field)}"
+                                        th:text="${field.name}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-auto">
+                        <button class="btn btn-primary mt-2" type="submit">검색</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div>전체: <span th:text="${institutions.size()}"></span>건</div>
+
+        <div class="content-section">
+            <div class="table-responsive">
+                <table class="custom-table table text-center">
+                    <thead>
+                    <tr>
+                        <th>기관유형</th>
+                        <th>기관명</th>
+                        <th>평가영역</th>
+                        <th th:text="${lastYear + '년 점수'}"></th>
+                        <th th:text="${searchParam.year + '년 점수'}"></th>
+                        <th>개선율</th>
+<!--                        <th>개선율 순위</th>-->
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:if="${institutions.isEmpty()}">
+                        <tr>
+                            <td colspan="7">데이터가 존재하지 않습니다.</td>
+                        </tr>
+                    </th:block>
+                    <th:block th:unless="${institutions.isEmpty()}">
+                        <tr th:each="institution, stat : ${institutions}">
+                            <td th:text="${institution.key.category}"></td>
+                            <td th:text="${institution.key.name}"></td>
+                            <th:block th:if="${searchParam.field == null or searchParam.field == ''}">
+                                <td>전체</td>
+                                <td th:text="${institution.value.get(lastYear) == null ? '-' : #numbers.formatDecimal(institution.value.get(lastYear), 1, 2)}"></td>
+                                <td th:text="${institution.value.get(searchParam.year) == null ? '-' : #numbers.formatDecimal(institution.value.get(searchParam.year), 1, 2)}"></td>
+                                <td th:text="${institution.key.improvementRate == null ? '-' : institution.key.improvementRate}"></td>
+                            </th:block>
+                            <th:block th:unless="${searchParam.field == null or searchParam.field == ''}">
+                                <th:block th:if="${#strings.equals(field.id, param.field)}" th:each="field : ${fields}"
+                                          th:with="fieldName = ${field.name},
+                                                lastFieldScore=${lastFieldScoreMap.get(fieldName) != null ? lastFieldScoreMap.get(fieldName).get(institution.key.id) : 0.0 },
+                                                currentFieldScore=${currentFieldScoreMap.get(fieldName) != null ? currentFieldScoreMap.get(fieldName).get(institution.key.id) : 0.0 }">
+                                    <td th:text="${fieldName}"></td>
+                                    <td th:text="${#numbers.formatDecimal(lastFieldScore, 1, 2)}"></td>
+                                    <td th:text="${#numbers.formatDecimal(currentFieldScore, 1, 2)}"></td>
+                                    <td th:text="${lastFieldScore == null or lastFieldScore == 0.0  ? '-' : #numbers.formatDecimal((currentFieldScore / lastFieldScore - 1) * 100, 1, 2)}"></td>
+                                </th:block>
+                            </th:block>
+<!--                            <td></td>-->
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script>
+        var Table = new Table();
+        var options = Handlebars.getTemplate("statistics/field");
+        /*<![CDATA[*/
+        var contextPath = /*[[${contextPath}]]*/ ""
+        /*]]>*/
+        initIndexSelect();
+
+        function initIndexSelect() {
+
+            $('#evlYear').change(function () {
+                //console.log('contextPath', `${contextPath}`);
+                $.ajax({
+                    url: '/dse/rest/statistics/improvementRank/year/' + $(this).val(),
+                    type: "GET",
+                    success: function (data) {
+                        var select = $('#field')
+                        select.html(options({
+                             type: 'improvementRank',
+                             data: data
+                         }));
+
+                    },
+                    error: function (error) {
+                        alert(error);
+                    }
+                })
+            })
+        }
+    </script>
+</th:block>
+</body>

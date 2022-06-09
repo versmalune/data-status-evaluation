@@ -1,0 +1,47 @@
+<th:block th:fragment="nav" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+          th:with="currentUser=${ #authentication.getPrincipal().getAccount()}">
+    <div id="header" class="app-header">
+        <div class="mobile-toggler">
+            <button type="button" class="menu-toggler" data-toggle="sidebar-mobile">
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+
+        <div class="brand">
+            <div class="desktop-toggler">
+                <button type="button" class="menu-toggler" data-toggle="sidebar-minify">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </div>
+            <a th:href="@{/}" class="brand-logo">
+                공공데이터 제공 운영실태 평가시스템
+            </a>
+        </div>
+
+        <div class="menu">
+            <div class="menu-search">
+            </div>
+
+            <th:block sec:authorize="isAuthenticated()">
+                <div class="menu-item dropdown">
+                    <a data-display="static" class="menu-link" id="navbarDropdown"  data-bs-toggle="dropdown">
+                        <div class="menu-text">
+                            <i class="fa fa-user"></i> <span th:text="${currentUser?.getRoleString + ' ' + currentUser?.userId}"></span>
+                        </div>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right me-lg-3">
+                        <form action="#" th:action="@{/account/logout}" method="post">
+                            <input type="submit" class="dropdown-item" value="LOGOUT"/>
+                        </form>
+                    </div>
+                </div>
+            </th:block>
+
+            <div class="menu-item" sec:authorize="isAnonymous()">
+                <a class="dropdown-item d-flex align-items-center" href="#" th:href="@{/account/login}">Login<i class="fa fa-user-circle fa-fw ms-auto text-dark text-opacity-50"></i></a>
+            </div>
+        </div>
+    </div>
+</th:block>

@@ -1,0 +1,20 @@
+<div class="instt-modal" th:fragment="instt-modal">
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">기관 선택</h4>
+                </div>
+                <div class="modal-body d-flex">
+                    <label for="instt-search" class="d-none"></label>
+                    <select class="form-control flex-fill" id="instt-search" name="insttId" disabled>
+                        <option th:each="instt : ${institutionList}" th:text="${instt.name}" th:value="${instt.id}">
+
+                        </option>
+                    </select>
+                    <button class="btn-primary instt-select-btn" type="button">선택</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

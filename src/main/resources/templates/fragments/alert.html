@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="ko" layout:decorator="application" xmlns:th="http://www.thymeleaf.org"  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+<div th:fragment="alert (type, message)" class="alert" th:classappend="'alert-' + ${type}">
+    <span th:utext="'ERROR : ' + ${message}">Test</span>
+</div>
+</body>
+</html>

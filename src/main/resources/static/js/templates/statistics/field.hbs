@@ -1,0 +1,14 @@
+
+{{#ifCond type '==' 'improvementRank'}}
+    <option value="" selected>전체</option>
+{{/ifCond}}
+
+{{#each data}}
+    {{#ifCond ../type '!=' 'qualitativeRank'}}
+        <option value="{{id}}">{{name}}</option>
+    {{else}}
+        <option value="{{id}}">{{fullName}}</option>
+    {{/ifCond}}
+
+{{/each}}
+

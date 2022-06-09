@@ -1,0 +1,66 @@
+.evl-box {
+  border: 1px solid getColor('primary', 'base');
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+  .evl-box-title {
+    font-weight: 700;
+    color: getColor('primary', 'base');
+    font-size: 20px;
+    background-color: getColor('grey', 'lighten-2');
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    padding-left: 20px;
+
+    .question {
+      font-size: 16px;
+    }
+  }
+
+  .input-group {
+    padding-left: 20px;
+    .file-label {
+      font-weight: 500;
+      min-width: 100px;
+    }
+
+    .file-input {
+      max-width: 600px;
+    }
+  }
+
+  .file-preview {
+    padding-left: 20px;
+    padding-bottom: 20px;
+  }
+}
+
+.evl-title {
+  color: black;
+  font-size: 24px;
+}
+
+.idx-tab-content {
+  .card {
+    border-radius: 10px;
+    border-left:8px getColor('primary', 'base') solid;
+    border-right: none;
+    border-top:none;
+    border-bottom:none;
+
+    .card-title {
+      color: getColor('primary','base');
+      font-weight: 600;
+    }
+
+    .card-text {
+      color: black;
+    }
+  }
+}
+
+.btn-result {
+  background-color: orange;
+  color: #fff;
+}

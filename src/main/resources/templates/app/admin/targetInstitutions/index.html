@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1 th:text="${searchParam.year + '년 평가대상 기관 관리'}"></h1>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary me-3 excel-download-btn">
+                    <i class="fa fa-download"></i> 엑셀 다운로드
+                </button>
+                <button type="button" class="btn excel-upload-btn" th:classappend="${isUploadable == 'true'} ? 'btn-primary' : 'btn-secondary'" data-bs-toggle="modal" data-bs-target="#excelUploadModal">
+                    <i class="fa fa-file-excel"></i> 엑셀 업로드
+                </button>
+            </div>
+            <div class="row justify-content-end mt-2">
+                <div class="col-md-2 col-sm-12">
+                    <div class="form-group">
+                        <label for="year-select">평가 년도</label>
+                        <select id="year-select" class="form-select">
+                            <option th:each="evlYear : ${evlYears}" th:value="${evlYear}" th:text="${evlYear}"
+                                    th:selected="${#strings.equals(searchParam.year, evlYear)}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <div class="btn btn-primary year-btn text-center mt-4">검색</div>
+                </div>
+            </div>
+        </div>
+
+        <div>전체: <span th:text="${#numbers.formatDecimal(targetGroups.size(), 0, 'COMMA', 0, 'POINT')}"></span>건</div>
+
+        <div class="content-section">
+            <div th:replace="app/admin/targetInstitutions/excelUploadModal :: upload-modal"></div>
+            <div class="table-responsive mt-2">
+                <table class="table text-center custom-table">
+                    <caption></caption>
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>기관 유형</th>
+                        <th>평가대상 기관 수</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:if="${targetGroups.isEmpty()}">
+                        <tr>
+                            <td colspan="3">데이터가 존재하지 않습니다.</td>
+                        </tr>
+                    </th:block>
+                    <th:block th:unless="${targetGroups.isEmpty()}">
+                        <tr class="clickable-row" th:attrappend="data-id=${targetGroup.id}" th:data-url="@{'/admin/targetInstitutions/category/'+${targetGroup.id}+'?year='+${searchParam.year}}"
+                            th:each="targetGroup, stat : ${targetGroups}">
+                            <td th:text="${stat.index+1}"></td>
+                            <td th:text="${targetGroup.name + ' (' + targetGroup.code + ')'}"></td>
+                            <td th:text="${targetGroup.count == 0 ? targetGroup.count + ' / ' + targetGroup.count : targetYGroups[stat.index].count + ' / ' + targetGroup.count }"></td>
+                        </tr>
+                    </th:block>
+                    <tr>
+                        <td class="bg-secondary"></td>
+                        <td class="bg-secondary">합 계</td>
+                        <td th:text="${totalTargetCount == 0 ? totalTargetCount : totalTargetYCount + ' / ' + totalTargetCount}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/common/ajax-spinner.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        var year = "[[${searchParam.year}]]"
+        var isUploadable = "[[${isUploadable}]]"
+        var uploadableBeginDt = "[[${uploadableBeginDt}]]"
+        var uploadableEndDt = "[[${uploadableEndDt}]]"
+        /*]]>*/
+        new Table();
+
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        $(".year-btn").on("click", function () {
+            var year = $('#year-select').val();
+            location.href = location.pathname + "?year=" + year;
+        });
+
+        var excelUploadInfoMsg = "엑셀 업로드 기능은 해당년도의 평가미진행 기간에만 사용 가능합니다.";
+        if (uploadableBeginDt != "" && uploadableEndDt != "") {
+            excelUploadInfoMsg += "\n* 평가미진행 일정 : " + uploadableBeginDt + " ~ " + uploadableEndDt;
+        }
+        if (isUploadable === 'false') {
+            excelUploadInfoMsg += "\n(X) 엑셀 업로드 기능을 사용할 수 없는 기간입니다. (X)";
+        }
+
+        $('.excel-upload-btn').on("click", function () {
+             alert(excelUploadInfoMsg);
+        });
+
+        $('#excel-upload-form input,button:submit').on("click", function (e) {
+            if (isUploadable === 'false') {
+                e.preventDefault();
+                alert(excelUploadInfoMsg);
+            }
+        });
+
+        $('#excel-upload-form').submit(function (e){
+            e.preventDefault();
+
+            var form = $('#excel-upload-form')[0];
+            var data = new FormData(form);
+
+            if ($("#file").val() == '') {
+                alert("업로드할 파일을 선택 후 업로드 버튼을 눌러주세요.")
+            } else if (confirm("업로드 하시겠습니까?")) {
+                $.ajax({
+                    url: contextPath + "/admin/targetInstitutions/excelUpload",
+                    type: "POST",
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader(header, token);
+                        startLoading();
+                    },
+                    complete: function (e) {
+                        stopLoading();
+                        $("#excelUploadModal").modal('hide');
+                    },
+                    success: function (data) {
+                        alert("데이터 업로드가 성공하였습니다.")
+                        location.reload();
+                    },
+                    error: function (err) {
+                        alert(err.responseJSON.message);
+                    }
+                });
+            }
+        });
+
+        $(".template-download-btn").on("click", function () {
+            $.ajax({
+                url: contextPath + "/admin/targetInstitutions/templateDownload",
+                type: "GET",
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                xhrFields:{
+                    responseType: 'blob'
+                },
+                success: function (result) {
+                    var blob = result;
+                    var downloadUrl = URL.createObjectURL(blob);
+                    var a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = "평가대상_기관_템플릿.xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                },
+                error: function (e) {
+                    window.alert("다운로드중 에러가 발생했습니다.")
+                }
+            });
+        });
+
+        $(".excel-download-btn").on("click", function () {
+            $.ajax({
+                url: contextPath + "/admin/targetInstitutions/excelDownload?year="+year,
+                type: "GET",
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                xhrFields:{
+                    responseType: 'blob'
+                },
+                success: function (result) {
+                    var blob = result;
+                    var downloadUrl = URL.createObjectURL(blob);
+                    var a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = "평가대상_기관_" + year + "년.xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                },
+                error: function (e) {
+                    window.alert("다운로드중 에러가 발생했습니다.")
+                }
+            });
+        });
+
+    </script>
+</th:block>
+</body>

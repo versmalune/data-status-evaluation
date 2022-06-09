@@ -1,0 +1,111 @@
+@import "manage";
+
+table.custom-result-table {
+  color: #3c3c3c;
+  border: solid 0 #EAEAEA;
+  > thead,
+  > tbody {
+    border-top: 2px solid #3c3c3c;
+
+    > tr {
+      > th {
+        text-align: center;
+        vertical-align: middle;
+        font-size: 13px;
+        //background-color: #1a5bd9;
+        //background-color: var(--bs-info);
+        background-color: getColor('primary', 'base');
+        font-weight: bold;
+        color: white;
+      }
+
+      > td {
+        border-bottom: solid 1px #EAEAEA;
+        vertical-align: middle;
+        font-size: 13px;
+        font-weight: 400;
+        letter-spacing: -1.2px;
+        border-left: 0;
+        border-right: 0;
+      }
+    }
+  }
+}
+
+table.table.eval-response-table {
+  > tbody > tr > th {
+    vertical-align: middle;
+    width: 200px;
+  }
+}
+
+.level-input {
+  width: 60px;
+}
+
+.pt-20px {
+  padding-top: 20px;
+}
+
+table.p-0-table > tbody > tr > td {
+  padding: 0 !important;
+}
+
+.footer-per-page ul{
+  width: fit-content;
+  display: flex;
+  flex-wrap: wrap;
+  background: getColor('primary', 'base');
+  padding: 8px;
+  border-radius: 50px;
+}
+.footer-per-page ul li{
+  color: #fff;
+  list-style: none;
+  line-height: 45px;
+  text-align: center;
+  font-size: 25px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+.footer-per-page ul li.numb{
+  list-style: none;
+  height: 45px;
+  width: 45px;
+  margin: 0 3px;
+  line-height: 45px;
+  border-radius: 50%;
+}
+.footer-per-page li.active{
+  color: getColor('primary', 'base');
+  background: #fff;
+}
+
+.eval-result-container {
+  max-width: 800px;
+  >.content-wrap {
+    padding: 20px !important;
+  }
+}
+@media (min-width: 576px) {
+  .eval-result-container {
+    max-width: 540px;
+  }
+}
+@media (min-width: 768px) {
+  .eval-result-container {
+    max-width: 750px;
+  }
+}
+@media (min-width: 992px) {
+  .eval-result-container {
+    max-width: 800px;
+  }
+}
+@media (min-width: 1200px) {
+  .eval-result-container {
+    max-width: 800px;
+  }
+}

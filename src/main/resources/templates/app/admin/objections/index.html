@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      th:with="EvaluationStatus = ${T(kr.co.data_status_evaluation.model.enums.EvaluationStatus)}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>이의신청 관리</h1>
+        </div>
+
+        <div class="content-section">
+            <div class="search-form-area">
+                <form action="#" th:action="@{/admin/objections}" method="get" th:object="${searchParam}">
+                    <div class="row justify-content-end align-items-end">
+                        <div class="col-sm-12 col-md-1">
+                            <div class="form-group">
+                                <form id="yearForm">
+                                    <label for="evlYear">평가년도</label>
+                                    <select id="evlYear" name="year" class="form-select">
+                                        <option th:each="evlYear: ${evlYears}" th:value="${evlYear}" th:text="${evlYear}"
+                                                th:selected="${#strings.equals(evlYear, searchParam.year)}"></option>
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-2">
+                            <div class="form-group">
+                                <label for="type">기관유형</label>
+                                <select class="form-select" id="type" name="type">
+                                    <option value="" selected>전체</option>
+                                    <option th:each="category: ${categories}" th:value="${category.getCode()}"
+                                            th:selected="${category.getCode() == searchParam.type}" th:text="${category.getName()}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-2">
+                            <div class="form-group">
+                                <label th:for="insttNm">기관명</label>
+                                <input type="text" class="search-text form-control" th:field="*{insttNm}">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-2">
+                            <div class="form-group">
+                                <label th:for="indexName">평가지표명</label>
+                                <input type="text" class="search-text form-control" th:field="*{indexName}">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-2">
+                            <div class="form-group">
+                                <label th:for="objection">이의 제기 의견</label>
+                                <input type="text" class="search-text form-control" th:field="*{objection}">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-1">
+                            <div class="form-group">
+                                <label th:for="status">상태</label>
+                                <select class="form-select" th:field="*{status}">
+                                    <option value="" selected>전체</option>
+                                    <option value="objc">이의 제기</option>
+                                    <option value="review">검토 완료</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary mt-2" type="submit">검색</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div>전체: <span th:text="${pagination.totalElements}"></span>건</div>
+
+            <div class="table-responsive mt-2">
+                <table class="custom-table table text-center">
+                    <caption></caption>
+                    <colgroup>
+                        <col style="width: 5%">
+                        <col style="width: 5%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 15%">
+                        <col style="width: 30%">
+                        <col style="width: 5%">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>평가년도</th>
+                        <th>기관유형</th>
+                        <th>기관명</th>
+                        <th>평가지표명</th>
+                        <th>이의 제기 의견</th>
+                        <th>상태</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:if="${evaluationResults.isEmpty()}">
+                        <tr>
+                            <td colspan="7">데이터가 존재하지 않습니다.</td>
+                        </tr>
+                    </th:block>
+                    <th:block th:unless="${evaluationResults.isEmpty()}">
+                        <tr class="clickable-row" data-bs-toggle="modal" th:attr="data-bs-target=${'#objectionModal' + evaluationResult.id}"
+                            th:each="evaluationResult, iter : ${evaluationResults}">
+                            <td th:text="${pagination.totalElements - (((pagination.pageNumber) * pagination.pageSize) + iter.index)}"></td>
+                            <td th:text="${evaluationResult.year}"></td>
+                            <td th:text="${evaluationResult.institution?.getTypeByYear(searchParam.year)}"></td>
+                            <td th:text="${evaluationResult.institution?.name}"></td>
+                            <td th:text="${evaluationResult.evaluationIndex?.fullName}"></td>
+                            <td th:utext="${evaluationResult.objection}"></td>
+                            <td>
+                                <span th:if="${#strings.isEmpty(evaluationResult.objectionReview)}" class="badge bg-secondary">이의 제기</span>
+                                <span th:unless="${#strings.isEmpty(evaluationResult.objectionReview)}" class="badge bg-success">검토 완료</span>
+                            </td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <th:block th:unless="${evaluationResults.isEmpty()}">
+            <div th:each="evaluationResult, iter : ${evaluationResults}"
+                 th:insert="app/admin/objections/objectionModal :: objection-modal"></div>
+        </th:block>
+
+        <div th:replace="fragments/pagination :: pagination"></div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/manager/admin-objection-manager.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        /*]]>*/
+    </script>
+    <script>
+        new adminObjectionManager({contextPath: contextPath});
+    </script>
+</th:block>
+</body>

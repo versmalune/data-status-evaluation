@@ -1,0 +1,23 @@
+<tr class="category-detail">
+    <th>
+        <div class="d-flex align-items-center">
+            <input class="form-control" placeholder="코드 입력" type="text" name="detailCategories[].code">
+        </div>
+    </th>
+    <th>
+        <div class="d-flex align-items-center">
+            <input class="form-control" placeholder="명칭 입력" type="text" name="detailCategories[].name">
+        </div>
+    </th>
+    <th>
+        <div class="d-flex align-items-center">
+            <input class="form-control" placeholder="설명 입력" type="text" name="detailCategories[].description">
+        </div>
+    </th>
+    <th>
+        <button type="button" class="btn btn-danger remove-level-btn">삭제</button>
+    </th>
+    {{#if categoryId}}
+    <input type="hidden" name="detailCategories[].institutionCategoryId">
+    {{/if}}
+</tr>

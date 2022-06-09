@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX idx_uq_tb_rev_account_user_id ON tb_rev_account (user_id);

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="d-flex justify-content-center" th:fragment="pagination" th:if="${pagination.totalPages > 0}">
+    <ul class="pagination">
+        <li th:if="${pagination.current > 1}">
+            <a class="page-link jump"
+               th:href="@{__${#httpServletRequest.servletPath}__(page=1)} + '&' + ${pagination.query}">
+                <span class="d-none">jump</span><i class="far fa-chevron-double-left"></i>
+            </a>
+        </li>
+        <li th:if="${pagination.current <= 10 && pagination.current > 1}">
+            <a class="page-link jump"
+               th:href="@{__${#httpServletRequest.servletPath}__(page=1)} + '&' + ${pagination.query}">
+                <span class="d-none">jump</span><i class="far fa-chevron-left"></i>
+            </a>
+        </li>
+        <li th:if="${pagination.current > 10}">
+            <a class="page-link jump"
+               th:href="@{__${#httpServletRequest.servletPath}__(page=${pagination.current - pagination.pageSize})} + '&' + ${pagination.query}">
+                <span class="d-none">jump</span><i class="far fa-chevron-left"></i>
+            </a>
+        </li>
+        <li th:each="i : ${#numbers.sequence(pagination.begin, pagination.end)}"
+            th:class="${i == pagination.current} ? 'active'">
+            <a class="page-link"
+               th:href="@{__${#httpServletRequest.servletPath}__(page=${i})} + '&' + ${pagination.query}">
+                <span th:text="${i}"></span>
+            </a>
+        </li>
+
+        <li th:if="${pagination.current < (pagination.totalPages - 10)}">
+            <a class="page-link jump"
+               th:href="@{__${#httpServletRequest.servletPath}__(page=${pagination.current + 10})} + '&' + ${pagination.query}">
+                <span class="d-none">jump</span><i class="far fa-chevron-right"></i>
+            </a>
+        </li>
+
+        <li th:if="${(pagination.current >= (pagination.totalPages - 10)) && (pagination.current < pagination.totalPages)}">
+            <a class="page-link jump"
+               th:href="@{__${#httpServletRequest.servletPath}__(page=${pagination.totalPages})} + '&' + ${pagination.query}">
+                <span class="d-none">jump</span><i class="far fa-chevron-right"></i>
+            </a>
+        </li>
+
+        <li th:if="${pagination.current < pagination.totalPages}">
+            <a class="page-link jump"
+               th:href="@{__${#httpServletRequest.servletPath}__(page=${pagination.totalPages})} + '&' + ${pagination.query}">
+                <span class="d-none">jump</span><i class="far fa-chevron-double-right"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+</html>

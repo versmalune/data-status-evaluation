@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<div layout:fragment="content" class="container-fluid"
+     th:with="Author=${T(kr.co.data_status_evaluation.model.enums.Author)}">
+    <div class="content-wrap">
+        <div class="title-section">
+            <div class="d-flex">
+                <div class="form-group">
+                    <label for="year-select" class="d-none"></label>
+                    <select id="year-select" class="form-select-lg" disabled>
+                        <option th:each="evalYear : ${evlYears}" th:value="${evalYear}" th:text="${evalYear}"
+                                th:selected="${#strings.equals(searchParam.year, evalYear)}"></option>
+                    </select>
+                </div>
+                <h1 th:text="'년 평가대상 기관 관리 - ' + ${insttCategory.name + ' (' + insttCategory.code + ')'}"></h1>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="search-form-area">
+                <form action="#" th:action="@{/admin/targetInstitutions/category/{categoryId}(categoryId=${searchParam.categoryId})}"
+                      method="get" th:object="${searchParam}">
+                    <input type="hidden" th:field="*{year}">
+                    <div class="row justify-content-end align-items-end">
+                        <div class="col-sm-12 col-md-3">
+                            <div class="form-group">
+                                <label th:for="institutionCode">기관코드</label>
+                                <input type="text" class="search-text form-control" th:field="*{institutionCode}">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-3">
+                            <div class="form-group">
+                                <label th:for="institutionNm">기관명</label>
+                                <input type="text" class="search-text form-control" th:field="*{institutionNm}">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-2">
+                            <div class="form-group">
+                                <label th:for="trgtYn">평가대상여부</label>
+                                <select class="form-select" th:field="*{trgtYn}">
+                                    <option value="" th:selected="${searchParam.trgtYn == ''}">전체</option>
+                                    <option value="Y" th:selected="${searchParam.trgtYn == 'Y'}">평가</option>
+                                    <option value="N" th:selected="${searchParam.trgtYn == 'N'}">미평가</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary" type="submit">검색</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-responsive">
+                <div class="d-flex justify-content-between">
+                    <div class="flex-end">전체: <span th:text="${pagination.totalElements}"></span>건</div>
+                    <div class="form-group">
+                        <label for="page-size-select" class="d-none"></label>
+                        <select id="page-size-select" class="form-select" th:field="*{pagination.pageSize}"
+                                th:value="*{pagination.pageSize}">
+                            <option th:value="10" th:text="'10개씩'" th:selected="${pagination.pageSize==10}"></option>
+                            <option th:value="20" th:text="'20개씩'" th:selected="${pagination.pageSize==20}"></option>
+                            <option th:value="50" th:text="'50개씩'" th:selected="${pagination.pageSize==50}"></option>
+                            <option th:value="100" th:text="'100개씩'" th:selected="${pagination.pageSize==100}"></option>
+                            <option th:value="200" th:text="'200개씩'" th:selected="${pagination.pageSize==200}"></option>
+                            <option th:value="500" th:text="'500개씩'" th:selected="${pagination.pageSize==500}"></option>
+                        </select>
+                    </div>
+                </div>
+                <table class="custom-table table text-center target-instt-table mt-2">
+                    <caption></caption>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%;">
+                            <label class="d-none" for="select-all-check-box">평가 대상 여부</label>
+                            <input class="form-check-input" type="checkbox" id="select-all-check-box">
+                        </th>
+                        <th style="width: 10%;">번호</th>
+                        <th style="width: 40%;">기관코드</th>
+                        <th style="width: 40%;">기관명</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:if="${targets.isEmpty()}">
+                        <tr>
+                            <td colspan="4">데이터가 존재하지 않습니다.</td>
+                        </tr>
+                    </th:block>
+                    <th:block th:unless="${targets.isEmpty()}">
+                        <tr th:each="target, iter : ${targets}">
+                            <td th:data-id="${target.id}" th:data-instt-id="${target.institution.id}">
+                                <label class="d-none" for="trgtInsttYn">평가 대상 여부</label>
+                                <input class="form-check-input trgtInsttYn" type="checkbox" id="trgtInsttYn"
+                                       th:checked="${target.trgtInsttYn == 'Y'}">
+                            </td>
+                            <td th:text="${pagination.totalElements - (((pagination.pageNumber) * pagination.pageSize) + iter.index)}"></td>
+                            <td th:text="${target.institution.code}"></td>
+                            <td th:text="${target.institution.name}"></td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+            <th:block th:unless="${targets.isEmpty()}">
+                <div class="d-flex justify-content-end">
+                    <button type="button" id="target-instt-save-btn" class="btn btn-primary">저장</button>
+                </div>
+            </th:block>
+        </div>
+        <div th:replace="fragments/pagination :: pagination"></div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/common/ajax-spinner.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        var categoryId = "[[${searchParam.categoryId}]]"
+        var year = "[[${searchParam.year}]]"
+        var pageSize = "[[${pagination.pageSize}]]"
+        /*]]>*/
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        $("#year-select").on("change", function () {
+            location.href = location.pathname + "?year=" + $(this).val() + "&size=" + pageSize;
+        });
+        $("#year-select").attr("disabled", false);
+
+        $("#page-size-select").on("change", function (e) {
+            location.href = location.pathname + "?year=" + year + "&size=" + $(this).val();
+        });
+
+        var $targetInsttTable = $(".target-instt-table");
+
+        var editFlag = false;
+        $targetInsttTable.on("click", "#trgtInsttYn", function (e) {
+            var self = this;
+            if (!$(self).hasClass("changed-row")) {
+                $(self).addClass("changed-row");
+            } else {
+                $(self).removeClass("changed-row");
+            }
+
+            editFlag = ($targetInsttTable.find(".changed-row").length > 0) ? true : false;
+        })
+
+        if ($(".trgtInsttYn").prop("checked")) {
+            $("#select-all-check-box").prop("checked", true);
+        }
+
+        $("#select-all-check-box").on("change", function () {
+            if (this.checked) {
+                $(".trgtInsttYn").each(function () {
+                    $(this).prop("checked", true);
+                    $(this).addClass("changed-row");
+                })
+            } else {
+                $(".trgtInsttYn").each(function () {
+                    $(this).prop("checked", false);
+                    $(this).addClass("changed-row");
+                })
+            }
+
+            editFlag = ($targetInsttTable.find(".changed-row").length > 0) ? true : false;
+        });
+
+        $("#target-instt-save-btn").on("click", function () {
+            if (!editFlag) {
+                alert("수정된 내용이 없습니다.");
+            } else {
+                var $insttYnList = $targetInsttTable.find(".changed-row");
+
+                var dataList = [];
+
+                for (var i = 0; i < $insttYnList.length; i++) {
+                    dataList.push({
+                        id: $($insttYnList[i]).parent().data("id"),
+                        insttId: $($insttYnList[i]).parent().data("instt-id"),
+                        year: year,
+                        trgtInsttYn: $($insttYnList[i]).is(":checked") ? "Y" : "N",
+                    });
+                }
+
+                $.ajax({
+                    url: contextPath + "/admin/targetInstitutions/bulkUpdate",
+                    data: JSON.stringify(dataList),
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader(header, token);
+                        xhr.setRequestHeader('content-type', 'application/json;charset=UTF-8');
+                        startLoading();
+                    },
+                    complete: function () {
+                        stopLoading();
+                    },
+                    type: "POST",
+                    success: function (res) {
+                        window.alert("저장이 완료되었습니다.");
+                        location.reload();
+                    },
+                    error: function (err) {
+                        window.alert("저장 중 에러가 발생했습니다.");
+                        console.log(err);
+                    }
+                });
+            }
+        });
+    </script>
+</th:block>
+</body>

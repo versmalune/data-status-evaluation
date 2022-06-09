@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>자체실적 미등록 기관 조회</h1>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary me-3 excel-download-btn">
+                    <i class="fa fa-download"></i> 엑셀 다운로드
+                </button>
+            </div>
+        </div>
+
+        <div class="search-form-area">
+            <form>
+                <div class="row justify-content-end align-items-end">
+                    <div class="col-sm-12 col-md-3">
+                        <div class="d-flex justify-content-end">
+                            <div class="form-check abc-radio radio-primary form-check-inline">
+                                <input id="noLogin" type="radio" class="form-check-input" name="status" value="noLogin" th:checked="${searchParam.status} != 'noFile'">
+                                <label class="form-check-label" for="noLogin">미접속 기관</label>
+                            </div>
+                            <div class="form-check abc-radio radio-primary form-check-inline">
+                                <input id="noFile" type="radio" class="form-check-input" name="status" value="noFile" th:checked="${searchParam.status} == 'noFile'">
+                                <label class="form-check-label" for="noFile">미등록 기관</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-2">
+                        <div class="form-group">
+                            <form id="yearForm">
+                                <label for="evlYear">평가년도</label>
+                                <select id="evlYear" name="year" class="form-select">
+                                    <option th:each="y: ${evlYears}" th:value="${y}" th:text="${y}"
+                                            th:selected="${#strings.equals(y, searchParam.year)}"></option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-2">
+                        <div class="form-group">
+                            <label for="type">기관유형</label>
+                            <select class="form-select" id="type" name="type">
+                                <option value="" selected>전체</option>
+                                <option th:each="category: ${categories}" th:value="${category.getCode()}"
+                                        th:selected="${category.getCode() == searchParam.type}" th:text="${category.getName()}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-2">
+                        <div class="form-group">
+                            <label th:for="code">기관코드</label>
+                            <input type="text" class="search-text form-control" th:field="*{searchParam.code}">
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-2">
+                        <div class="form-group">
+                            <label th:for="name">기관명</label>
+                            <input type="text" class="search-text form-control" th:field="*{searchParam.name}">
+                        </div>
+                    </div>
+
+                    <div class="col-auto">
+                        <button class="btn btn-primary" type="submit">검색</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div>전체: <span th:text="${pagination.totalElements}"></span>건</div>
+
+        <div class="content-section">
+            <div class="table-responsive">
+                <table class="custom-table table text-center">
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>평가년도</th>
+                        <th>기관유형</th>
+                        <th>기관코드</th>
+                        <th>기관명</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:if="${institutions.isEmpty()}">
+                        <tr>
+                            <td colspan="5">데이터가 존재하지 않습니다.</td>
+                        </tr>
+                    </th:block>
+                    <th:block th:unless="${institutions.isEmpty()}">
+                        <tr th:each="institution, iter : ${institutions}">
+<!--                            class="clickable-row" th:data-url="@{'/admin/eval/instt/' + ${institution.id} + '?year=' + ${searchParam.year}}">-->
+                            <td th:text="${pagination.totalElements - (((pagination.pageNumber) * pagination.pageSize) + iter.index)}"></td>
+                            <td th:text="${searchParam.year}"></td>
+                            <td th:text="${categoryCodeMap.get(institution.type)}"></td>
+                            <td th:text="${institution.code}"></td>
+                            <td th:text="${institution.name}"></td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:replace="fragments/pagination :: pagination"></div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var year = "[[${searchParam.year}]]";
+        var status = "[[${searchParam.status}]]";
+        var query = "[[${pagination.query}]]";
+        /*]]>*/
+        // var Table = new Table();
+
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        $('.excel-download-btn').on("click", function() {
+            var fileNm = year + "년";
+            fileNm += status == "noLogin" ? "미접속_기관" : "미등록_기관";
+            fileNm += "_" + new Date().toISOString().slice(0, 10).replaceAll("-", "");
+            $.ajax({
+                url: location.pathname + '/excelDownload?' + query,
+                type: "GET",
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                xhrFields:{
+                    responseType: 'blob'
+                },
+                success: function (result) {
+                    var blob = result;
+                    var downloadUrl = URL.createObjectURL(blob);
+                    var a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = fileNm + ".xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                },
+                error: function (e) {
+                    window.alert("다운로드중 에러가 발생했습니다.")
+                }
+            });
+        });
+    </script>
+</th:block>
+</body>

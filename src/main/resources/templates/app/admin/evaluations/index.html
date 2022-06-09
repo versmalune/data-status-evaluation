@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      th:with="EvaluationStatus=${T(kr.co.data_status_evaluation.model.enums.EvaluationStatus)}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>실태평가</h1>
+        </div>
+        <div class="content-section">
+            <div class="search-form-area">
+                <form id="admin-eval-form">
+                    <div class="row justify-content-end align-items-end">
+                        <div class="col-sm-12 col-md-2">
+                            <div class="form-group">
+                                <form id="yearForm">
+                                    <label for="evlYear">평가년도</label>
+                                    <select id="evlYear" name="year" class="form-select">
+                                        <option th:each="y: ${evlYears}" th:value="${y}" th:text="${y}"
+                                                th:selected="${#strings.equals(y, searchParam.year)}"></option>
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12 col-md-2">
+                            <div class="form-group">
+                                <label for="type">기관유형</label>
+                                <select class="form-select" id="type" name="type">
+                                    <option value="" selected>전체</option>
+                                    <option th:each="category: ${categories}" th:value="${category.getCode()}"
+                                            th:selected="${category.getCode() == searchParam.type}" th:text="${category.getName()}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-2">
+                            <div class="form-group justify-content-end">
+                                <label for="code">기관코드</label>
+                                <input id="code" type="text" class="search-text form-control" name="code"
+                                       th:value="${searchParam.code}">
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-2">
+                            <div class="form-group">
+                                <label for="name">기관명</label>
+                                <input id="name" type="text" class="search-text form-control" name="name"
+                                th:value="${searchParam.name}">
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary admin-eval-submit mt-2" type="submit">검색</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-start align-items-end">
+                    <div class="flex-end me-4">
+                        전체: <span th:text="${pagination.totalElements}"></span>건
+                    </div>
+                    <span class="me-2">
+                        <i class="fa fa-info-circle text-info"></i>
+                        체크한 기관 평가상태 변경 :
+                    </span>
+                    <div class="form-group me-2">
+                        <label th:for="insttFactStatus" class="d-none"></label>
+                        <select id="insttFactStatus" class="form-select">
+                            <option th:each="status : ${EvaluationStatus.statuses}"
+                                    th:text="${status.title}"
+                                    th:value="${status}"
+                                    th:selected="${currentSchedule?.name == status}"></option>
+                        </select>
+                    </div>
+                    <button id="status-save-btn" type="button" class="btn btn-primary">저장</button>
+                </div>
+                <div class="form-group">
+                    <label for="page-size-select" class="d-none"></label>
+                    <select id="page-size-select" class="form-select" th:value="*{pagination.pageSize}"
+                            th:form="'admin-eval-form'" name="size">
+                        <option th:value="10" th:text="'10개씩'" th:selected="${pagination.pageSize==10}"></option>
+                        <option th:value="20" th:text="'20개씩'" th:selected="${pagination.pageSize==20}"></option>
+                        <option th:value="50" th:text="'50개씩'" th:selected="${pagination.pageSize==50}"></option>
+                        <option th:value="100" th:text="'100개씩'" th:selected="${pagination.pageSize==100}"></option>
+                        <option th:value="200" th:text="'200개씩'" th:selected="${pagination.pageSize==200}"></option>
+                        <option th:value="500" th:text="'500개씩'" th:selected="${pagination.pageSize==500}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="admin-eval-table" class="custom-table table text-center mt-2">
+                    <caption></caption>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%;">
+                            <label class="d-none" for="select-all-check-box">평가상태 저장여부</label>
+                            <input class="form-check-input" type="checkbox" id="select-all-check-box">
+                        </th>
+                        <th>번호</th>
+                        <th>기관유형</th>
+                        <th>기관코드</th>
+                        <th>기관명</th>
+                        <th>기관 평가상태</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:if="${institutions.isEmpty()}">
+                        <tr>
+                            <td colspan="6">데이터가 존재하지 않습니다.</td>
+                        </tr>
+                    </th:block>
+                    <th:block th:unless="${institutions.isEmpty()}">
+                        <tr class="clickable-row" th:data-url="@{'/admin/eval/instt/' + ${institution.id} + '?'} + ${pagination.query}"
+                            th:each="institution, iter : ${institutions}"
+                            th:with="insttFact=${institutionResultFactMap.get(institution.id)}">
+                            <td th:data-id="${institution.id}">
+                                <label for="statusSaveYn" class="d-none">평가상태 저장여부</label>
+                                <input id="statusSaveYn" class="form-check-input statusSaveYn" type="checkbox">
+                            </td>
+                            <td th:text="${pagination.totalElements - (((pagination.pageNumber) * pagination.pageSize) + iter.index)}"></td>
+                            <td th:text="${currentYear == searchParam.year ? institution.category?.name : institution.getTypeByYear(searchParam.year)}"></td>
+                            <td th:text="${institution.code}"></td>
+                            <td th:text="${institution.name}"></td>
+                            <td th:text="${insttFact?.processStatus?.title}"></td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary me-3 excel-download-btn">
+                    <i class="fa fa-download"></i>&nbsp;평가결과 다운로드
+                </button>
+            </div>
+
+            <div th:replace="fragments/pagination :: pagination"></div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/common/ajax-spinner.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var year = "[[${searchParam.year}]]";
+        /*]]>*/
+        var Table = new Table();
+
+        $("#page-size-select").on("change", function (e) {
+            $("#admin-eval-form").submit();
+        });
+
+        var $adminEvalTable = $("#admin-eval-table");
+
+        $("#select-all-check-box").on("change", function () {
+            if (this.checked) {
+                $(".statusSaveYn").each(function () {
+                    $(this).prop("checked", true);
+                })
+            } else {
+                $(".statusSaveYn").each(function () {
+                    $(this).prop("checked", false);
+                })
+            }
+        });
+
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        $("#status-save-btn").on("click", function () {
+            var $statusSaveYnList = $adminEvalTable.find(".statusSaveYn:checked")
+            var isChecked = ($statusSaveYnList.length > 0) ? true : false;
+
+            if (!isChecked) {
+                alert("선택된 기관이 없습니다. 체크 버튼을 통해 기관 선택 후 진행하세요.");
+            } else {
+                var data = [];
+                for (var i = 0; i < $statusSaveYnList.length; i++) {
+                    data.push({
+                        id: $($statusSaveYnList[i]).parent().data("id"),
+                    });
+                }
+                var status = $("#insttFactStatus option:selected").val();
+
+                $.ajax({
+                    url: location.pathname + "/bulkUpdate/" + year + "/" + status,
+                    type: "POST",
+                    data: JSON.stringify(data),
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader(header, token);
+                        xhr.setRequestHeader('content-type', 'application/json;charset=UTF-8');
+                        startLoading();
+                    },
+                    complete: function () {
+                        stopLoading();
+                    },
+                    success: function (res) {
+                        window.alert("저장이 완료되었습니다.");
+                        location.reload();
+                    },
+                    error: function (err) {
+                        window.alert("저장 중 에러가 발생했습니다.");
+                        console.log(err);
+                    }
+                });
+            }
+        });
+
+        $(".excel-download-btn").on("click", function() {
+            $.ajax({
+                url: location.pathname + "/api/results?year=" + year,
+                type: "GET",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                    startLoading();
+                },
+                xhrFields:{
+                    responseType: 'blob'
+                },
+                complete: function () {
+                    stopLoading();
+                },
+                success: function (res) {
+                    var downloadUrl = URL.createObjectURL(res);
+                    var a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = "평가결과_종합_" + year + "년.xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                },
+                error: function (err) {
+                    window.alert("저장 중 에러가 발생했습니다.");
+                    console.log(err);
+                }
+            });
+        })
+
+    </script>
+</th:block>
+</body>

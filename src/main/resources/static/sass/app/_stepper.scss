@@ -1,0 +1,93 @@
+.nav.nav-tabs.stepper {
+  border: 0;
+  //border-bottom: 1px solid #ddd;
+  padding: 0;
+  //background: #f5f5f5;
+  border-radius: 0;
+  border-top-right-radius: 5px;
+  list-style: none;
+  overflow: hidden;
+
+  > li {
+    > a {
+      color: #6c757d;
+      text-decoration: none;
+      padding: 10px 0 10px 45px;
+      position: relative;
+      display: block;
+      border: 0 !important;
+      border-radius: 0;
+      outline-style: none;
+      background: #f5f5f5;
+
+      &:before {
+        content: " ";
+        display: block;
+        width: 0;
+        height: 0;
+        border-top: 50px solid transparent;
+        border-bottom: 50px solid transparent;
+        border-left: 30px solid #ddd;
+        position: absolute;
+        top: 50%;
+        margin-top: -50px;
+        margin-left: 1px;
+        left: 100%;
+        z-index: 1;
+      }
+
+      &:after {
+        content: " ";
+        display: block;
+        width: 0;
+        height: 0;
+        border-top: 50px solid transparent;
+        border-bottom: 50px solid transparent;
+        border-left: 30px solid #f5f5f5;
+        position: absolute;
+        top: 50%;
+        margin-top: -50px;
+        left: 100%;
+        z-index: 2;
+      }
+
+      &:hover {
+        isolation: initial;
+      }
+    }
+
+    &:first-child > a {
+      padding-left: 15px;
+    }
+
+    &.done {
+      > a {
+        border-color: var(--app-component-focus-border-color) !important;
+        color: #fff !important;
+        background: var(--app-component-focus-border-color) !important;
+
+        &:after {
+          border-left: 30px solid var(--app-component-focus-border-color);
+        }
+      }
+    }
+
+    &.active {
+      > a {
+        border-color: var(--app-sidebar-menu-link-active-color) !important;
+        color: #fff !important;
+        background: var(--app-sidebar-menu-link-active-color) !important;
+
+        &:after {
+          border-left: 30px solid var(--app-sidebar-menu-link-active-color) !important;
+        }
+      }
+    }
+
+    &:last-child {
+      > a:before {
+        border: none !important;
+      }
+    }
+  }
+}

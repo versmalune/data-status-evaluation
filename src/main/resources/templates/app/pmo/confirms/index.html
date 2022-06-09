@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container mt-1 mb-1">
+  <form>
+    <div class="row align-items-end">
+      <div class="col-2">
+        <div class="form-group">
+          <label for="evlIdx">평가지표</label>
+          <select class="form-control form-select" id="evlIdx">
+            <option>데이터 표준 확산</option>
+            <option>데이터 표준 확산</option>
+            <option>데이터 표준 확산</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-2">
+        <div class="form-group">
+          <label for="confirm-status">확인점검 상태</label>
+          <select class="form-control form-select" id="confirm-status">
+            <option>확인 의뢰</option>
+            <option>점검 완료</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="form-group">
+          <label for="name">기관명</label>
+          <input id="name" type="text" class="form-control" placeholder="해양수산부">
+        </div>
+      </div>
+      <div class="col-2">
+        <button type="submit" class="btn btn-primary" href="#">검색</button>
+      </div>
+    </div>
+  </form>
+  <div class="mt-5 table-responsive">
+    <table class="table table-bordered">
+      <thead class="grey-bg text-light align-middle text-center">
+      <tr>
+        <th>No.</th>
+        <th>기관명</th>
+        <th>시스템명</th>
+        <th>DB 명</th>
+        <th>평가지표</th>
+        <th>의뢰횟수</th>
+        <th>의뢰 날짜</th>
+        <th>진행상태</th>
+        <th>확인점검</th>
+      </tr>
+      </thead>
+      <tbody class="align-middle text-center">
+      <tr th:each="num: ${#numbers.sequence(1,4)}">
+        <td>1</td>
+        <td>해양수산부</td>
+        <td>귀어귀촌종합센터</td>
+        <td>sealife DB</td>
+        <td>03. 데이터 표준 확산</td>
+        <td>2</td>
+        <td>2021.01.12 12:02:53</td>
+        <td>확인 의뢰</td>
+        <td>
+          <a class="btn btn-sm btn-primary" href="#" th:href="@{/pmo/confirms/1}">점검</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

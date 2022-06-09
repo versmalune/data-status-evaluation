@@ -1,0 +1,6 @@
+.accordion-button {
+  &.multiline-btn {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}

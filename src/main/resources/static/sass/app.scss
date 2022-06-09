@@ -1,0 +1,254 @@
+@import "font-notosans";
+@import "font-notosans-kr";
+@import "font-hangle";
+
+@import "bootstrap5/bootstrap";
+@import "bootstrap_override";
+
+@import "font-awesome-pro/fontawesome";
+@import "font-awesome-pro/regular";
+@import "font-awesome-pro/solid";
+@import "font-awesome-pro/light";
+@import "font-awesome-pro/brands";
+
+@import "ext/bootstrap-slider";
+
+@import "colors";
+@import "awesome_checkbox";
+
+@import "components/table";
+@import "components/pagination";
+@import "components/datepicker";
+@import "components/evaluation";
+@import "components/ajax_spinner";
+
+@import "app/account";
+@import "app/vars";
+@import "app/nav";
+@import "app/accordion";
+@import "app/sidebar";
+@import "app/auth";
+@import "app/stepper";
+@import "app/common";
+
+@import "app/home";
+@import "app/evaluation/evaluation";
+
+html, body {
+  font-family: 'Noto Sans', 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  word-break: keep-all;
+}
+
+#app, body, html {
+  height: 100%;
+}
+
+.app {
+  padding-top: 3.75rem;
+}
+
+.app-content {
+  //padding: 1.875rem 3.125rem;
+  padding: 1.5rem;
+  position: relative;
+  min-height: 100%;
+  margin-left: 15rem;
+  >.container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  >.container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  >.container-lg {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  >.container-md {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  >.container-sm {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  >.container-xl {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .app-content-container {
+    position: relative;
+    z-index: 10;
+  }
+  .app-content-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  .content-wrap {
+    padding: 1rem;
+    background-color: #fff;
+    outline: 1px solid var(--app-component-border-color);
+    //transition: box-shadow .2s linear;
+    //box-shadow: var(--app-content-box-shadow);
+    .title-section {
+      margin-bottom: 1rem;
+    }
+    .content-section {
+
+    }
+  }
+}
+.app-content-full-width {
+  .app-content {
+    margin: 0;
+  }
+}
+@media (max-width: 991.98px) {
+  .app-content {
+    padding: 1.25rem 1.25rem;
+    margin-left: 0;
+  }
+}
+@media (min-width: 992px) {
+  .app-content-full-height {
+    height: 100%;
+    .app-content {
+      height: 100%;
+    }
+  }
+}
+
+.flex-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.caret {
+  font-family: 'Font Awesome 5 Pro' !important;
+  font-weight: 900;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+
+  &:before {
+    content: "\f0d7";
+  }
+}
+
+input:-webkit-autofill{
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+}
+
+input:focus,
+button.btn:focus {
+  outline: 0;
+}
+
+.sub-title {
+  color: #636E77;
+  font-weight: bold;
+}
+
+.d3-tooltip {
+  background-color: rgba(255, 255, 255, .9);
+  padding: 8px;
+  border: 1px solid getColor("grey", "lighten-1");
+}
+
+.first-container {
+  width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.top-bar {
+  background-color: #2F8ECA;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+
+  .banner-item {
+    margin: 0 10px 0 10px;
+    color: #fff;
+  }
+
+  .logout-container {
+    float: right;
+
+    .logout-submit {
+      display: list-item;
+      background-color: transparent;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+
+      &:hover {
+        outline: none;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.main-home {
+  height: 300px;
+  outline: 2px solid #495057;
+}
+
+.main-search {
+  height: 200px;
+  outline: 2px solid #495057;
+
+  .suggested-keyword {
+    padding: 0 1.5rem;
+    text-align: center;
+    font-size: 14px;
+  }
+}
+
+.main-boards {
+  outline: 2px solid #495057;
+
+  &__box {
+    padding-top: 75%;
+    outline: 2px solid #495057;
+  }
+}
+
+.main-footer {
+  height: 100px;
+  outline: 1px solid var(--app-component-border-color);
+  transition: box-shadow .2s linear;
+  box-shadow: var(--app-content-box-shadow);
+  align-items: center;
+  margin-left: 15rem;
+  background-color: #fff;
+  color: #282828;
+  padding: 1rem 0;
+
+  .vertical-bar {
+    margin: 0 5px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .main-footer {
+    padding: 1.25rem 1.25rem;
+    margin-left: 0;
+  }
+}
+
+a {
+  color: black;
+
+  &:hover {
+    color: black;
+  }
+}

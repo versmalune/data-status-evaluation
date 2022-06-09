@@ -1,0 +1,295 @@
+@-webkit-keyframes appSidebarMobileSlideIn {
+  from {
+    left: -15rem;
+  }
+  to {
+    left: 0;
+  }
+}
+@keyframes appSidebarMobileSlideIn {
+  from {
+    left: -15rem;
+  }
+  to {
+    left: 0;
+  }
+}
+@-webkit-keyframes appSidebarMobileSlideOut {
+  from {
+    left: 0;
+  }
+  to {
+    left: -15rem;
+  }
+}
+@keyframes appSidebarMobileSlideOut {
+  from {
+    left: 0;
+  }
+  to {
+    left: -15rem;
+  }
+}
+@-webkit-keyframes appSidebarMobileBackdrop {
+  from {
+    background: 0 0;
+  }
+  to {
+    background: var(--app-sidebar-mobile-backdrop-bg);
+  }
+}
+@keyframes appSidebarMobileBackdrop {
+  from {
+    background: 0 0;
+  }
+  to {
+    background: var(--app-sidebar-mobile-backdrop-bg);
+  }
+}
+@-webkit-keyframes appSidebarMobileRemoveBackdrop {
+  from {
+    background: var(--app-sidebar-mobile-backdrop-bg);
+  }
+  to {
+    background: 0 0;
+  }
+}
+@keyframes appSidebarMobileRemoveBackdrop {
+  from {
+    background: var(--app-sidebar-mobile-backdrop-bg);
+  }
+  to {
+    background: 0 0;
+  }
+}
+
+.app-sidebar {
+  background-color: white;
+  position: fixed;
+  top: 3.75rem;
+  bottom: 0;
+  width: 15rem;
+  z-index: 1020;
+  display: flex;
+  flex-direction: column;
+  left: 0;
+  border-right: 1px solid var(--app-sidebar-border-color);
+  .app-sidebar-content {
+    padding: 0.625rem 0;
+    flex: 1;
+  }
+  .app-sidebar-mobile-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    margin: 0;
+    outline: 0;
+    display: none;
+  }
+  .menu {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    .menu-item {
+      padding: 0 0.625rem;
+      .menu-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        font-size: 1rem;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        + {
+          .menu-text {
+            margin-left: 0.625rem;
+          }
+        }
+        .menu-icon-label {
+          position: absolute;
+          top: -0.3125rem;
+          font-size: 0.5625rem;
+          font-weight: 600;
+          height: auto;
+          background: var(--app-sidebar-menu-link-icon-label-bg);
+          color: var(--app-sidebar-menu-link-icon-label-color);
+          padding: 0.0625rem 0 0.125rem;
+          line-height: 1;
+          min-width: 0.875rem;
+          min-height: 0.875rem;
+          border-radius: 0.875rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          right: -0.3125rem;
+        }
+      }
+      .menu-caret {
+        opacity: 0.75;
+      }
+      .menu-text {
+        flex: 1;
+      }
+      .menu-link {
+        padding: 0.375rem 0.625rem;
+        line-height: 1.25rem;
+        text-decoration: none;
+        color: var(--app-sidebar-menu-link-color);
+        display: flex;
+        align-items: center;
+        border-radius: 6px;
+        &:hover {
+          background: var(--app-sidebar-menu-link-hover-bg);
+        }
+      }
+      .menu-submenu {
+        display: none;
+        padding-bottom: 0.625rem;
+        padding-left: 1.25rem;
+        .menu-item {
+          padding-right: 0;
+          .menu-link {
+            padding: 0.25rem 0.625rem;
+          }
+        }
+      }
+    }
+    .menu-item.active {
+      &:not(.has-sub) {
+        >.menu-link {
+          color: var(--app-sidebar-menu-link-active-color);
+          font-weight: 600;
+          background: var(--app-sidebar-menu-link-active-bg);
+        }
+      }
+      >.menu-submenu {
+        display: block;
+      }
+    }
+    .menu-divider {
+      margin: 8px 0;
+      height: 1px;
+    }
+    .menu-header {
+      margin: 0.5rem 1.25rem;
+      font-size: 0.7875rem;
+      font-weight: 600;
+      color: var(--app-sidebar-menu-header-color);
+    }
+  }
+}
+.app-full-width {
+  .app-sidebar {
+    z-index: 1020;
+    transition: all 0.2s ease;
+    left: -15rem;
+  }
+}
+.app-sidebar-mobile-toggled {
+  .app-sidebar {
+    -webkit-animation: appSidebarMobileSlideIn 0.1s ease;
+    animation: appSidebarMobileSlideIn 0.1s ease;
+    left: 0;
+  }
+  .app-sidebar-mobile-backdrop {
+    display: block;
+    background: var(--app-sidebar-mobile-backdrop-bg);
+    -webkit-animation: appSidebarMobileBackdrop 0.2s ease;
+    animation: appSidebarMobileBackdrop 0.2s ease;
+  }
+}
+.app-sidebar-mobile-closed {
+  .app-sidebar {
+    -webkit-animation: appSidebarMobileSlideOut 0.1s ease;
+    animation: appSidebarMobileSlideOut 0.1s ease;
+    left: -15rem;
+  }
+  .app-sidebar-mobile-backdrop {
+    display: block;
+    background: 0 0;
+    -webkit-animation: appSidebarMobileRemoveBackdrop 0.2s ease;
+    animation: appSidebarMobileRemoveBackdrop 0.2s ease;
+  }
+}
+.app-sidebar-minified {
+  .app-sidebar {
+    width: 4.0625rem;
+    .menu-item {
+      position: relative;
+      padding: 0.1875rem 0.75rem;
+      .menu-link {
+        position: relative;
+        .menu-icon {
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .menu-caret {
+          opacity: 0.75;
+        }
+      }
+    }
+    .menu-submenu {
+      display: none !important;
+    }
+    .menu-text {
+      display: none !important;
+    }
+    .slimScrollBar {
+      display: none !important;
+    }
+    .menu-header {
+      margin-left: 0.3125rem;
+      margin-right: 0.3125rem;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .menu-caret {
+      position: absolute;
+      top: 50%;
+      margin-top: -9px;
+      right: 3px;
+      transform: rotate(-90deg);
+    }
+    .hide-on-minified {
+      display: none;
+    }
+  }
+  .app-content {
+    margin-left: 4.0625rem;
+  }
+}
+@media (max-width: 991.98px) {
+  .app-sidebar {
+    top: 0;
+    z-index: 1130;
+    left: -15rem;
+    border-right: none;
+    .app-sidebar-content {
+      background-color: var(--app-sidebar-content-mobile-bg);
+      position: relative;
+      z-index: 1010;
+      width: 15rem;
+    }
+  }
+
+  .app-sidebar-minified {
+    .app-content {
+      margin-left: 0;
+    }
+  }
+}
+
+.slimScrollBar {
+  background: 0 0!important;
+  width: 0.5rem!important;
+  right: 0!important;
+}

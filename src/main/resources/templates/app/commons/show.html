@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div layout:fragment="content" class="container mt-1 mb-1">
+    <div class="content-wrap">
+        <div class="title-section">
+            <div class="d-flex">
+                <h1 th:if="${board.getNttTy().toString() == 'NOTICE'}">공지사항</h1>
+                <h1 th:if="${board.getNttTy().toString() == 'QNA'}">Q&A</h1>
+                <h1 th:if="${board.getNttTy().toString() == 'FAQ'}">FAQ</h1>
+            </div>
+        </div>
+
+        <div class="row mt-5" th:with="boardType=${T(kr.co.data_status_evaluation.model.enums.BoardType)}">
+            <!--            <div class="col-1"></div>-->
+            <div class="table-responsive-md">
+                <table class="table custom-table">
+                    <caption></caption>
+                    <div th:if="${message}" th:text="${message}" th:class="${'alert ' + alertClass}"/>
+                    <tbody>
+                    <tr>
+                        <th class="align-middle text-center" style="width: 15%">제목</th>
+                        <td colspan="3" th:utext="${board.getSj()}"></td>
+                    </tr>
+                    <tr>
+                        <th class="align-middle text-center ">작성자</th>
+                        <td th:text="${board.getAccount()?.name}"></td>
+                        <th class="align-middle text-center" style="width: 15%">조회수</th>
+                        <td th:text="${board.getViewCount()}"></td>
+                    </tr>
+                    <tr>
+                        <th class="align-middle text-center ">기관명</th>
+                        <td colspan="3" th:text="${board.getNttTy() == null ? '' : board.getAccount()?.getInstitution()?.getName()}"></td>
+                    </tr>
+                    <tr>
+                        <th class="align-middle text-center">내용</th>
+                        <td colspan="5"><span th:utext="${board.cn}"></span></td>
+                    </tr>
+                    <tr>
+                        <th class="align-middle text-center ">등록일자</th>
+                        <td th:text="${#dates.format(board.getCreatedAt(), 'yyyy-MM-dd')}"></td>
+                        <th class="align-middle text-center ">수정일자</th>
+                        <td th:text="${#dates.format(board.getUpdatedAt(), 'yyyy-MM-dd')}"></td>
+                    </tr>
+                    <tr>
+                        <th class="align-middle text-center">첨부파일</th>
+                        <td colspan="5" th:if="${materialList != null}">
+                            <div class="row" th:each="material: ${materialList}">
+                                <div class="col">
+                                    <a class="primary-text" href="#" th:href="@{|/file/download/${material.getFile().getId()}|}"
+                                       th:text="${material.getFile().getOrgnlFileNm()}"></a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${board.getAnswer() != null}">
+                        <th class="align-middle text-center bg-success text-white">답변</th>
+                        <td colspan="5" th:utext="${board.getAnswer().getCn()}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="d-flex" th:classappend="${isDeletable?.equals('true')} ? '' : 'justify-content-end'">
+                    <button form="boardDeleteForm" sec:authorize="isAuthenticated()" th:if="${isDeletable?.equals('true')}"
+                            class="btn btn-danger me-auto remove-btn">삭제
+                    </button>
+                    <a href="#" sec:authorize="hasRole('ADMIN')" th:if="${board.getNttTy().toString() == 'QNA'}"
+                       th:href="@{${'/commons/answer/new/' + board.getId()}}"
+                       class="btn btn-primary me-1" th:text="${board.getAnswer() != null} ? '답변 수정' : '답변'"></a>
+                    <a href="#" th:href="@{${'/commons/edit/' + board.getId()}}" th:if="${isEditable?.equals('true')}"
+                       class="btn btn-primary me-1">수정</a>
+                    <a href="#" th:href="@{|/commons/${board.getNttTy().name().toLowerCase()}s|}"
+                       class="btn btn-secondary">목록</a>
+                </div>
+                <form id="boardDeleteForm" action="#" th:action="@{${'/commons/' + board.getId() + '/delete'}}" method="post">
+                    <input type="hidden" name="accountId" th:value="${board.getAccount()?.getId()}">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+<tr class='rate-row'>
+    <th>
+        {{level}}등급
+        <input type="hidden" name="rateDetails[{{idx}}].level" value="{{level}}">
+    </th>
+    <td>
+        <div class="d-flex m-2 justify-content-center align-items-center">
+            <div class="form-group mx-2">
+                <label class="d-none" for="rateDetails{{idx}}.rate">비율</label>
+                <input type="text" class="form-control rate"
+                       id="rateDetails{{idx}}.rate"
+                       name="rateDetails[{{idx}}].rate"
+                       required
+                       title="0 이상, 100 이하의 정수 혹은 소수점 1자리를 포함한 숫자를 입력하세요.">
+            </div>
+            <div class="me-2"> %</div>
+            <div class="rate-postfix" style="width: 200px;"></div>
+        </div>
+    </td>
+    <td>
+        <button type="button" class="btn btn-outline-danger remove-rate-btn">삭제</button>
+    </td>
+</tr>

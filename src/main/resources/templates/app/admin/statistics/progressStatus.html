@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      th:with="EvaluationStatus=${T(kr.co.data_status_evaluation.model.enums.EvaluationStatus)}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>평가진행 현황조회</h1>
+        </div>
+
+        <div class="content-section">
+            <div class="row">
+                <div class="col-4">
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-center">
+                            <tbody>
+                            <tr>
+                                <th>평가진행상태</th>
+                                <td>기관수</td>
+                            </tr>
+                            <th:block th:if="${progressMap.isEmpty()}">
+                                <tr>
+                                    <td colspan="2">데이터가 존재하지 않습니다.</td>
+                                </tr>
+                            </th:block>
+                            <th:block th:unless="${progressMap.isEmpty()}">
+                                <tr th:each="iter : ${progressMap}">
+                                    <th th:text="${iter.key}"></th>
+                                    <td th:text="${iter.value}"></td>
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-8 position-relative text-center">
+                    <h4>평가진행현황</h4>
+                    <div id="progress-status-chart" class="home-chart"></div>
+                    <div class="chart-legend" id="progress-status-legend"></div>
+                    <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part(1)"></div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="me-2">평가진행상태 :</span>
+                    <div class="form-group">
+                        <select class="form-select" id="status-select" disabled>
+                            <option value="">전체</option>
+                            <option th:each="status : ${EvaluationStatus.values}"
+                                    th:value="${status}" th:text="${status.title}"
+                                    th:selected="${#strings.equals(param.status, status)}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="custom-table table text-center">
+                        <thead>
+                        <tr>
+                            <th>기관구분</th>
+                            <th>기관명</th>
+                            <th>환산전 점수</th>
+                            <th>환산후 점수</th>
+                            <th>평가진행상태</th>
+                            <th>평가일자</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <th:block th:if="${institutions.isEmpty()}">
+                            <tr>
+                                <td colspan="6">데이터가 존재하지 않습니다.</td>
+                            </tr>
+                        </th:block>
+                        <th:block th:unless="${institutions.isEmpty()}">
+                            <tr th:each="institution: ${institutions}">
+                                <td th:text="${institution.category}"></td>
+                                <td th:text="${institution.name}"></td>
+                                <td th:text="${#numbers.formatDecimal(institution.score, 1, 2)}"></td>
+                                <td th:text="${#numbers.formatDecimal(institution.standardScore, 1, 2)}"></td>
+                                <td th:text="${institution.processStatus.title}"></td>
+                                <td th:text="${#temporals.format(institution.updatedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!--            <div th:replace="fragments/pagination :: pagination"></div>-->
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/ext/amcharts/core.js}"></script>
+    <script th:src="@{/js/ext/amcharts/charts.js}"></script>
+    <script th:src="@{/js/ext/amcharts/animated.js}"></script>
+    <script th:src="@{/js/app/common/ajax-spinner.js}"></script>
+    <script>am4core.addLicense("CH204832145");</script>
+    <script th:src="@{/js/app/home/home-chart-manager.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        /*]]>*/
+    </script>
+    <script th:inline="javascript">
+        var Table = new Table();
+        var homeChartManager = new HomeChartManager();
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+        $.ajax({
+            url: contextPath + "/admin/statistics/stats/progress",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+                startLoading(1);
+            },
+            complete: function () {
+                stopLoading(1);
+            },
+            type: "GET",
+            success: function (data) {
+                var progressData = homeChartManager.preprocess(data);
+                homeChartManager.render("progress-status-chart", progressData);
+            },
+            error: function (error) {
+                alert(error);
+            }
+        });
+
+        $("#status-select").on("change", function () {
+            location.href = location.pathname + `?status=${this.value}`;
+        });
+        $("#status-select").attr("disabled", false);
+    </script>
+</th:block>
+</body>

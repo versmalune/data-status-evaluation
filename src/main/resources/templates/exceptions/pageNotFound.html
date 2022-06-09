@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>공공데이터 품질관리 수준평가 시스템</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,100' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            background-color: #fff;
+            color: #3c3c3c;
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+            width: 100%;
+            margin: 0;
+        }
+
+        .dialog {
+            margin: auto;
+            margin-top: 12%;
+        }
+
+        h3.error-msg {
+            color: #3c3c3c;
+            font-weight: normal;
+        }
+
+        p.content {
+            padding-left: 20px;
+            padding-right: 20px;
+            color: #929292;
+        }
+
+        .btn-group {
+            margin-top: 50px;
+        }
+
+        .btn-group a {
+            background-color: #3356a2;
+            color: white;
+            padding: 10px 50px;
+            display: inline-block;
+            margin-left: 20px;
+            margin-right: 20px;
+            width: 290px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+
+        .btn-group a:hover {
+            background-color: #1D408A;
+        }
+
+        .btn-group a.previous {
+            background-color: #fff;
+            border-color: #3356a2;
+            color: #3356a2;
+        }
+
+        .btn-group a.previous:hover{
+            background-color: #ddd;
+        }
+
+        div.footer {
+            font-size: 14px;
+            margin-top: 30px;
+            padding-bottom: 50px;
+        }
+
+    </style>
+</head>
+
+<body>
+<!-- This file lives in public/404.html -->
+<div class="dialog">
+    <div>
+        <img src="" th:src="@{/imgs/error.png}" alt="에러" style="width: 120px;">
+
+        <h3 class="error-msg">
+            페이지를 찾을 수 없습니다
+        </h3>
+
+        <p class="content sub">
+            페이지가 존재하지 않거나, 사용할 수 없는 페이지입니다.<br/>
+            입력하신 주소가 정확한지 확인 후 이용해주시기 바랍니다. (Error 404)
+        </p>
+    </div>
+
+    <div class="btn-group">
+        <a href="javascript:history.go(-1)" class="previous">
+            이전 페이지
+        </a>
+        <a href="#" th:href="@{/}">
+            홈으로 돌아가기
+        </a>
+    </div>
+
+    <div class="footer">
+        <div style="font-size: 18px; margin-bottom: 20px;">공공데이터 제공운영 실태평가 시스템</div>
+        <div style="">
+            <div style="display: inline-block; margin-right: 30px;">
+                <a href="https://www.mois.go.kr/" target="_blank" style="text-decoration-line: none">
+                    <img th:src="@{/imgs/footer_logo01.png}" alt="행정안전부">
+                </a>
+                <a href="https://www.nia.or.kr/" target="_blank" style="text-decoration-line: none">
+                    <img height="43px" th:src="@{/imgs/footer_logo03.png}" alt="한국지능정보사회진흥원">
+                </a>
+            </div>
+<!--            <div style="display: inline-block;">-->
+<!--                <div>-->
+<!--                    <span style="font-size: 13px; font-weight: 600; color: #216db9;">상담센터</span>-->
+<!--                    <img th:src="@{/imgs/footer-icon-tel.png}" alt="전화기아이콘" style="width: 25px; height: 25px;">-->
+<!--                </div>-->
+<!--                <span style="font-size: 26px; color: #2f4583;">1600-4091</span>-->
+<!--            </div>-->
+        </div>
+    </div>
+</div>
+</body>
+</html>

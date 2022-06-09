@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_evl_result ALTER score SET DEFAULT 0;

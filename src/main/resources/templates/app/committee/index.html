@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<div layout:fragment="content" class="main-content">
+    <div class="container-fluid">
+        <div class="content-wrap">
+            <div class="title-section">
+                <div class="row">
+                    <div class="col">
+                        <h3>
+                            <form id="yearForm">
+                                <label for="evlYear" class="d-none"></label>
+                                <select id="evlYear" name="evlYear" class="d-inline form-select w-auto" disabled>
+                                    <option th:each="y: ${evlYears}" th:value="${y}" th:text="${y}" th:selected="${#strings.equals(y, currentYear)}"></option>
+                                </select>
+                                <span>년 평가일정</span>
+                            </form>
+                        </h3>
+                        <ul class="nav nav-tabs stepper justify-content-start" th:if="${schedules.size() > 0}">
+                            <li class="nav-item" th:each="schedule: ${schedules}"
+                                th:classappend="|${schedule.isDone ? 'done' : ''} ${schedule.isActive ? 'active' : ''}|">
+                                <a class="nav-link disabled">
+                                    <div th:text="${schedule.name.title}"></div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="row justify-content-center m-4">
+                    <div class="col-6 position-relative">
+                        <h4 class="text-center">기관 실태 평가 진행 현황</h4>
+                        <div id="evaluation-db-status-chart" class="home-chart"></div>
+                        <div class="chart-legend" id="status-legend"></div>
+                        <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part(1)"></div>
+                    </div>
+                    <div class="col-6 position-relative">
+                        <h4 class="text-center">이의제기 현황</h4>
+                        <div id="objection-status-chart" class="home-chart"></div>
+                        <div class="chart-legend" id="objection-legend"></div>
+                        <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part(2)"></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <div class="table-responsive">
+                            <table class="table-bordered table text-center">
+                                <caption></caption>
+                                <thead>
+                                <tr>
+                                    <th>평가분야</th>
+                                    <th>지표명</th>
+                                    <th>지표유형</th>
+                                    <th>제출자료 일괄 다운로드</th>
+                                </tr>
+                                </thead>
+                                <tbody class="tbody">
+                                <th:block th:if="${indices.isEmpty()}">
+                                    <tr>
+                                        <td colspan="4">담당 지표가 존재하지 않습니다.</td>
+                                    </tr>
+                                </th:block>
+                                <th:block th:unless="${indices.isEmpty()}">
+                                    <tr class="clickable-row"
+                                        th:data-url="@{'/committee/eval/' + ${index.id}}"
+                                        th:each="index, stat : ${indices}">
+                                        <td th:text="${index.evaluationField.name}"></td>
+                                        <td th:text="${index.fullName}"></td>
+                                        <td th:text="${index.type == null ? '가감점' : index.type.title}"></td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary zip-download-btn"
+                                                    th:data-index-id="${index.id}"
+                                                    th:data-zip-name="${index.fullName}"
+                                                    th:data-spinner-seq="${stat.index+3}" role="button">다운로드</button>
+                                            <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part-d-none(${stat.index+3})"></div>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/ext/amcharts/core.js}"></script>
+    <script th:src="@{/js/ext/amcharts/charts.js}"></script>
+    <script th:src="@{/js/ext/amcharts/animated.js}"></script>
+    <script th:src="@{/js/app/common/ajax-spinner.js}"></script>
+    <script>am4core.addLicense("CH204832145");</script>
+    <script th:src="@{/js/app/home/home-chart-manager.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        var currentYear = "[[${currentYear}]]";
+            /*]]>*/
+    </script>
+    <script th:inline="javascript">
+        var Table = new Table();
+        var homeChartManager = new HomeChartManager();
+
+        $('#evlYear').change(function () {
+            $('#yearForm').attr('action', location.pathname + "?evlYear=" + $(this).find(":selected").val()).submit();
+        });
+        $('#evlYear').attr("disabled", false);
+
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            url: contextPath + "/committee/stats/progress?evlYear="+currentYear,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+                startLoading(1);
+            },
+            complete: function () {
+                stopLoading(1);
+            },
+            type: "GET",
+            success: function (data) {
+                var progressData = homeChartManager.preprocess(data);
+                homeChartManager.render("evaluation-db-status-chart", progressData);
+            },
+            error: function (error) {
+                alert(error);
+            }
+        });
+        $.ajax({
+            url: contextPath + "/committee/stats/objection?evlYear="+currentYear,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+                startLoading(2);
+            },
+            complete: function () {
+                stopLoading(2);
+            },
+            type: "GET",
+            success: function (data) {
+                var objectionData = homeChartManager.preprocess(data);
+                homeChartManager.render("objection-status-chart", objectionData);
+            },
+            error: function (error) {
+                alert(error);
+            }
+        });
+
+        $('.zip-download-btn').on("click", function () {
+            var spinnerSeq = $(this).data("spinner-seq");
+            var indexId = $(this).data("index-id");
+            var zipName = $(this).data("zip-name");
+            if (zipName != null && zipName != undefined) {
+                zipName.trim().replace(/[\{\}\/?,;:|*~`!^\+<>@\#$%&\\\=\'\"]/gi, ''); // 파일명 Validation
+            }
+
+            $.ajax({
+                url: contextPath + "/file/download/zip/indexId/"+ indexId,
+                type: "GET",
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                    startLoading(spinnerSeq);
+                },
+                complete: function () {
+                    stopLoading(spinnerSeq);
+                },
+                xhrFields:{
+                    responseType: 'blob'
+                },
+                success: function (result) {
+                    var blob = result;
+                    var downloadUrl = URL.createObjectURL(blob);
+                    var a = document.createElement("a");
+                    a.href = downloadUrl;
+                    a.download = zipName + ".zip";
+                    document.body.appendChild(a);
+                    a.click();
+                },
+                error: function (e) {
+                    window.alert("다운로드중 에러가 발생했습니다.");
+                }
+            });
+        });
+    </script>
+</th:block>
+</body>

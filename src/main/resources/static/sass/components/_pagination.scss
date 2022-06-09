@@ -1,0 +1,25 @@
+.pagination {
+  li {
+    a.page-link {
+      margin-left: 0;
+      padding: 0.4rem 0.55rem;
+      border: 1px solid transparent;
+      width: 40px;
+      color: var(--bs-gray);
+      font-size: 14px;
+      text-align: center;
+
+      &.jump {
+        margin-left: -1px;
+        color: #b4b4b4;
+      }
+    }
+
+    &.active {
+      a.page-link {
+        color: var(--bs-primary);
+        font-weight: bold;
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/auth}">
+<div layout:fragment="content" class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+            <div class="auth-container">
+                <div class="auth-wrap">
+                    <form class="login-form" method="post" action="#" th:action="@{/account/authenticate}">
+                        <th:block th:if="${param.error != null}">
+                            <div th:replace="fragments/alert :: alert (type='danger', message='아이디 또는 비밀번호가 올바르지 않습니다.')">Alert</div>
+                        </th:block>
+
+                        <span class="form-title">
+                            공공데이터 제공 운영실태 평가시스템
+                        </span>
+
+                        <div class="wrap-input has-bottom" data-validate="아이디를 입력해주세요.">
+                            <label for="username"><span class="label-input100">아이디</span></label>
+                            <input id="username" class="input" type="text" name="username" placeholder="아이디를 입력해주세요." autofocus>
+                            <span class="focus-input" data-symbol="&#xf007;"></span>
+                        </div>
+
+                        <div class="wrap-input mt-2 mb-4" data-validate="비밀번호를 입력해주세요.">
+                            <label for="password"><span class="label-input100">비밀번호</span></label>
+                            <input id="password" class="input" type="password" name="password" placeholder="비밀번호를 입력해주세요.">
+                            <span class="focus-input" data-symbol="&#xf023;"></span>
+                        </div>
+
+                        <div class="container-login-form-btn">
+                            <div class="wrap-login-form-btn">
+                                <div class="login-form-bgbtn"></div>
+                                <button class="login-form-btn">
+                                    로그인
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>

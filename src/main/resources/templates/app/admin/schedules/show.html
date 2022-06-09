@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid"
+     th:with="EvaluationStatus = ${T(kr.co.data_status_evaluation.model.enums.EvaluationStatus)}">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>평가일정 등록</h1>
+        </div>
+
+        <div class="content-section">
+            <form id="evalScheduleForm" action="#" th:action="@{${'/admin/evalSchedules/' + year}}" th:method="post" th:object="${scheduleWrap}">
+                <div class="mt-2">
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="form-group me-2">
+                                    <label th:for="year" class="d-none"></label>
+                                    <input type="text" class="form-control" id="year" style="width: 100px;"
+                                           th:field="*{year}" readonly>
+                                </div>
+                                <span style="font-size: 18px;">년 평가일정 등록</span>
+                            </div>
+                            <div class="d-flex">
+                                <button id="resetBtn" class="btn btn-secondary btn-red me-2" type="button">초기화</button>
+                                <div>
+                                    <div style="font-size: 16px;">* 모든 입력 값을 필수로 입력해주세요.</div>
+                                    <div style="font-size: 16px;">* 일정의 시작일은 이전 단계의 종료일 이후로 입력해주세요.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table text-center custom-table">
+                        <caption></caption>
+                        <tbody>
+                        <tr th:each="status, stat: ${EvaluationStatus.values}">
+                            <th>
+                                <input type="hidden" th:field="${scheduleWrap.schedules[__${stat.index}__].name}">
+                                <span th:text="${status.title}"></span>
+                            </th>
+                            <td>
+                                <div class="input-group input-daterange" th:id="'input-daterange'+${stat.index}">
+                                    <input type="text" class="form-control" placeholder="YYYY년 MM월 DD일" autocomplete="off"
+                                           th:field="${scheduleWrap.schedules[__${stat.index}__].dateRange}">
+                                    <label th:for="${scheduleWrap.schedules[__${stat.index}__].dateRange}" class="d-none"></label>
+                                    <span class="input-group-text calendar-icon right">
+                                        <i class="fal fa-calendar"></i></span>
+                                </div>
+                                <div class="text-danger"
+                                     th:if="${#fields.hasErrors('schedules['+__${stat.index}__+'].dateRange')}"
+                                     th:errors="${scheduleWrap.schedules[__${stat.index}__].dateRange}"></div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary float-end">저장</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--    <div th:replace="fragments/pagination :: pagination"></div>-->
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/common/date-utils.js}"></script>
+    <script th:inline="javascript">
+
+        var Table = new Table();
+        var DatePicker = new DatePicker();
+
+        var scheduleWrap = /*[[${scheduleWrap}]]*/ undefined;
+        DatePicker.setDate(scheduleWrap.schedules);
+
+        var $year = $('#year');
+        var $inputs = $('.input-daterange input');
+
+        $('#resetBtn').on("click", function() {
+            $inputs.val('');
+        })
+
+        var $form = $('#evalScheduleForm');
+        $form.on("submit", function (e) {
+            var form = $form[0];
+            e.preventDefault();
+            var errMsg = null;
+
+            if (confirm("저장하시겠습니까?")) {
+
+                // 필수 입력 Validation
+                if ($year.val().trim() == "") {
+                    errMsg = "모든 입력 값을 필수로 입력해주세요."
+                    year.focus();
+                    alert(errMsg);
+                    return;
+                }
+                var $requiredValids = $inputs.filter(index => $($inputs[index]).val() == "");
+                if ($requiredValids.length > 0) {
+                    errMsg = "모든 입력 값을 필수로 입력해주세요."
+                    $requiredValids[0].focus();
+                    alert(errMsg);
+                    return;
+                }
+
+                // 일정 간 겹치지 않도록 단계별 Validation
+                var schedules = [];
+                $inputs.each(function (index) {
+                    var value = $(this).val().replaceAll("년 ", "-").replaceAll("월 ", "-").replaceAll("일", "");
+                    var valueArray = value.split(" - ");
+                    schedules.push({
+                        begin: valueArray[0],
+                        end: valueArray[1],
+                    })
+                });
+
+                for (var i=1; i<schedules.length; i++) {
+                    // 0번째는 PASS
+                    if (schedules[i-1].end >= schedules[i].begin) {
+                        errMsg = "일정의 시작일은 이전 단계의 종료일 이후로 입력해주세요.";
+                        $($inputs[i]).val('');
+                        $inputs[i].focus();
+                        alert(errMsg);
+                        break;
+                    }
+                }
+
+                if (!errMsg) {
+                    form.submit();
+                }
+            }
+        });
+
+    </script>
+</th:block>
+</body>

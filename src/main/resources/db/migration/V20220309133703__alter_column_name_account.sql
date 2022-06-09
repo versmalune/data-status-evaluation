@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_account RENAME COLUMN company TO co;

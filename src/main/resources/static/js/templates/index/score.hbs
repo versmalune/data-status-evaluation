@@ -1,0 +1,21 @@
+<tr class="score-quan">
+    <th>
+        <div class="d-flex justify-content-center align-items-center">
+            {{#each categories}}
+                <input type="number" min="1" class="form-control level-input input-quan" name="scores[{{@index}}].level" data-idx="{{@index}}">
+            {{/each}}
+            &nbsp;등급
+        </div>
+    </th>
+    {{#each categories}}
+        <th>
+            <div class="d-flex align-items-center">
+                    <input type="hidden" name="scores[{{@index}}].category" value="{{this.id}}" data-idx="{{@index}}">
+                    <input class="form-control score-input input-quan" type="number" placeholder="배점입력" step="any" name="scores[{{@index}}].score" data-idx="{{@index}}">&nbsp;점
+            </div>
+        </th>
+    {{/each}}
+    <th>
+        <button type="button" class="btn btn-danger remove-level-btn">삭제</button>
+    </th>
+</tr>

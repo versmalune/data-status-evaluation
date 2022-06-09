@@ -1,0 +1,176 @@
+$c-bg: #1565C0;
+
+$p-colors: (
+  'finance': #ffc022,
+  'culture': #ac66f4,
+  'environment': #25a4fb,
+  'distribution': #E53835,
+  'health': #679e23,
+  'small_business': #795447,
+  'forest': #2cc46f,
+  'economy': #4051b5,
+  'communication': #FD6F41,
+  'traffic': #607d8b,
+  'dataportal': #017BCE,
+  'kict': #EE8022,
+  'aihub': #12B59C,
+  'skhub': #E51A36
+);
+
+$p-colors-d1: (
+  'finance': #FFD97A,
+  'culture': #CDA3F8,
+  'environment': #7CC8FD,
+  'distribution': #AF9891,
+  'health': #A4C57B,
+  'small_business': #FEA98D,
+  'forest': #80DCA9,
+  'economy': #8C97D3,
+  'communication': #EF8886,
+  'traffic': #A0B1B9,
+  'dataportal': #66B0E6,
+  'kict': #FEAF66,
+  'aihub': #66D5C3,
+  'skhub': #f68183
+);
+
+$p-colors-d2: (
+  'finance': #FFE6A7,
+  'culture': #DEC2FB,
+  'environment': #A8DBFD,
+  'distribution': #C9BBB5,
+  'health': #C2D8A7,
+  'small_business': #FEC5B3,
+  'forest': #ABE7C5,
+  'economy': #B3B9E1,
+  'communication': #F5AFAE,
+  'traffic': #BFCBD1,
+  'dataportal': #99CAEE,
+  'kict': #FFCA99,
+  'aihub': #99E3D7,
+  'skhub': #f8abac
+);
+
+@each $p_type, $color in $p-colors {
+  .#{$p_type}-text {
+    color: $color !important;
+  }
+
+  .#{$p_type}-bg {
+    background-color: $color !important;
+  }
+
+  circle.node.colored.#{$p_type} {
+    fill: $color;
+
+    &.dmap-dataservice {
+      stroke: map-get($p-colors-d2, $p_type);
+    }
+  }
+
+  .h-stacked-rect.publicCount{
+    rect.#{$p_type} {
+      fill: $color;
+    }
+  }
+}
+
+@each $p_type, $color in $p-colors-d1 {
+  .h-stacked-rect.privateCount{
+    rect.#{$p_type} {
+      fill: $color;
+    }
+  }
+}
+
+@each $p_type, $color in $p-colors-d2 {
+  .h-stacked-rect.privateChargeCount{
+    rect.#{$p_type} {
+      fill: $color;
+    }
+  }
+}
+
+@function getPlatformColor($code) {
+  @return map-get($p-colors, $code);
+}
+
+$primary-color: #1565C0;
+$colors: (
+  'primary': (
+    'lighten-2': #ccd8e6,
+    'lighten-1': #668bb4,
+    'base': #003f83,
+    'darken-1': #00264f,
+    'darken-2': #001227
+  ),
+  'secondary': (
+    'lighten-2': #d0e0f2,
+    'lighten-1': #72a2d9,
+    'base': #1565c0,
+    'darken-1': #0c3d73,
+    'darken-2': #061e39
+  ),
+  'grey': (
+    'lighten-2': #edf0f3,
+    'lighten-1': #c9d3dc,
+    'base': #a5b7c6,
+    'darken-1': #636e77,
+    'darken-2': #31363b
+  ),
+  'white': (
+    'base': #fff,
+  ),
+  'black': (
+    'lighten-2': #E0E0E0,
+    'lighten-1': #9E9E9E,
+    'base': #000,
+    'darken-1': #424242,
+    'darken-2': #212121
+  ),
+  'bg-clear': (
+    'base': #fff
+  )
+);
+
+@each $color_type, $color_names in $colors {
+  @each $color_name, $color_value in $color_names {
+    @if $color_name == "base" {
+      .#{$color_type}-bg {
+        background-color: $color_value !important;
+      }
+      .#{$color_type}-text {
+        color: $color_value !important;
+      }
+    }
+    @else if $color_name != "base" {
+      .#{$color_name}.#{$color_type}-bg {
+        background-color: $color_value !important;
+      }
+      .#{$color_name}-text.text-#{$color_type} {
+        color: $color_value !important;
+      }
+    }
+    @else if $color_name == "base" {
+      .#{$color_type}-bg {
+        background-color: $color_value !important;
+      }
+      .#{$color_type}-text {
+        color: $color_value !important;
+      }
+    }
+    @else if $color_name != "base" {
+      .#{$color_name}.#{$color_type}-bg {
+        background-color: $color_value !important;
+      }
+      .#{$color_name}-text.text-#{$color_type} {
+        color: $color_value !important;
+      }
+    }
+  }
+}
+
+@function getColor($color: 'primary', $type: 'base') {
+  $theme-color: map-get($colors, $color);
+  @return map-get($theme-color, $type);
+}

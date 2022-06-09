@@ -1,0 +1,48 @@
+table.custom-table {
+  color: #3c3c3c;
+  border: solid 0 #EAEAEA;
+  > thead,
+  > tbody {
+    border-top: 2px solid #3c3c3c;
+
+    > tr {
+      > th {
+        text-align: center;
+        vertical-align: middle;
+        //background-color: #1a5bd9;
+        //background-color: var(--bs-info);
+        background-color: getColor('primary', 'base');
+        font-weight: bold;
+        color: white;
+      }
+
+      > td {
+        border-bottom: solid 1px #EAEAEA;
+        vertical-align: middle;
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: -1.2px;
+        border-left: 0;
+        border-right: 0;
+      }
+    }
+  }
+}
+
+.table-bordered {
+  th, td {
+    vertical-align: middle;
+  }
+
+  th {
+    text-align: center;
+  }
+}
+
+.clickable-row {
+  &:hover {
+    background-color: var(--bs-table-hover-bg);
+    color: var(--bs-table-hover-color);
+    cursor: pointer;
+  }
+}

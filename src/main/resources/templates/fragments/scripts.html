@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="scripts" xmlns:th="http://www.thymeleaf.org">
+    <script th:src="@{/js/ext/jquery-3.4.1.min.js}"></script>
+    <script th:src="@{/js/ext/jquery.validate.min.js}"></script>
+
+    <!-- Bootstrap 5.1.3 -->
+    <script th:src="@{/js/ext/bootstrap.bundle.min.js}"></script>
+
+    <script th:src="@{/js/ext/lodash-4.17.15.min.js}"></script>
+    <script th:src="@{/js/ext/moment/moment.js}"></script>
+    <script th:src="@{/js/ext/moment/locale/ko.js}"></script>
+    <script th:src="@{/js/ext/handlebars-v4.5.3.min.js}"></script>
+    <script th:src="@{/js/ext/handlebars-helper.js}"></script>
+
+    <!-- html2pdf - Start -->
+    <script th:src="@{/js/ext/es6-promise.auto.min.js}"></script>
+    <script th:src="@{/js/ext/jspdf.umd.min.js}"></script>
+    <script th:src="@{/js/ext/html2canvas.min.js}"></script>
+    <script th:src="@{/js/ext/html2pdf.min.js}"></script>
+    <!-- html2pdf - End -->
+    <script th:src="@{/js/ext/dom-to-image.min.js}"></script>
+
+    <script th:src="@{/js/app/common/table.js}"></script>
+
+    <script th:src="@{/js/app/manager/account-manager.js}"></script>
+    <script th:src="@{/js/app/manager/eval-result-manager.js}"></script>
+    <script th:src="@{/js/app/manager/admin-eval-result-manager.js}"></script>
+    <script th:src="@{/js/app/home/instt-home-manager.js}"></script>
+
+    <script th:src="@{/js/app/vendor.min.js}"></script>
+    <script th:src="@{/js/app/app.js}"></script>
+
+    <!-- summernote -->
+    <script th:src="@{/js/ext/summernote/summernote-lite.js}"></script>
+    <script th:src="@{/js/ext/summernote/lang/summernote-ko-KR.js}"></script>
+    <script th:src="@{/js/app/common/summernote-manager.js}"></script>
+    <script th:src="@{/js/app/common/input-file-manager.js}"></script>
+
+    <script>
+        // (function ($) {
+        //     "use strict";
+        //     // Dropdown on Hover
+        //     $('.dropdown').hover(
+        //         function () {
+        //             $(this).toggleClass('open');
+        //         },
+        //         function () {
+        //             $(this).toggleClass('open');
+        //         }
+        //     );
+        //     // Dropdown on Hover End
+        // })(jQuery);
+    </script>
+    <!-- DateRangePicker CDN    -->
+    <!--    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>-->
+    <!--    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>-->
+    <script th:src="@{/js/ext/moment/moment.min.js}"></script>
+    <script th:src="@{/js/ext/daterangepicker/daterangepicker.js}"></script>
+</th:block>
+</body>

@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_instt ADD COLUMN del_yn CHAR(1) DEFAULT 'N';

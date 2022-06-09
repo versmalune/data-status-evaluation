@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_account ADD CONSTRAINT fk_tb_rev_account_instt_id FOREIGN KEY(instt_cd) REFERENCES tb_rev_instt_info(instt_cd);

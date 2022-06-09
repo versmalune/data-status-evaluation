@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_list_regist_mmg_sys_instt_user_info ADD COLUMN deleted CHAR(1);

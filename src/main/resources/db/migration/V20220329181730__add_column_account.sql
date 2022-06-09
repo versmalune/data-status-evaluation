@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_account ADD COLUMN last_access_dt TIMESTAMP;

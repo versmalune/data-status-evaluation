@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration status="info">
+    <Properties>
+        <Property name="layout">%d [%t] %-5level %logger - %m%n</Property>
+    </Properties>
+
+    <Appenders>
+
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${layout}" />
+        </Console>
+
+<!--        <RollingFile name="MyFile" filePattern="logs/$${date:yyyy-MM-dd}/%d{yyyy-MM-dd}-%i.log">-->
+<!--            <PatternLayout pattern="${layout}"/>-->
+<!--            <Policies>-->
+<!--                <OnStartupTriggeringPolicy />-->
+<!--                <SizeBasedTriggeringPolicy size="20 MB" />-->
+<!--                <TimeBasedTriggeringPolicy />-->
+<!--            </Policies>-->
+<!--        </RollingFile>-->
+    </Appenders>
+
+    <Loggers>
+
+        <Logger name="com.zetcode" level="info" additivity="false" >
+            <AppenderRef ref="Console" />
+<!--            <AppenderRef ref="MyFile" />-->
+        </Logger>
+
+        <Root level="debug">
+            <AppenderRef ref="Console" />
+<!--            <AppenderRef ref="MyFile" />-->
+        </Root>
+
+    </Loggers>
+</Configuration>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}"
+      th:with="author=${T(kr.co.data_status_evaluation.model.enums.Author)}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>사용자 등록</h1>
+        </div>
+
+        <div class="content-section">
+            <div class="account-form">
+                <form id="account-new-form" action="#" th:action="@{/admin/account}" th:object="${account}" method="post">
+                    <input type="hidden" th:field="*{id}">
+                    <table class="custom-table table text-center">
+                        <caption></caption>
+                        <tbody>
+                        <tr>
+                            <th><label th:for="userId">아이디</label></th>
+                            <td><input class="form-control w-100" type="text" th:field="*{userId}"></td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="email">이메일</label></th>
+                            <td><input class="form-control w-100" type="text" th:field="*{email}"></td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="name">이름</label></th>
+                            <td><input class="form-control w-100" type="text" th:field="*{name}"></td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="password">비밀번호</label></th>
+                            <td><input class="form-control w-100" type="password" th:field="*{password}"></td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="confirm-password">비밀번호 확인</label></th>
+                            <td>
+                                <input class="form-control w-100" type="password" id="confirm-password" name="confirm-password">
+                                <div id="pw-message"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="company">소속</label></th>
+                            <td>
+                                <input type="text" class="form-control w-100" th:field="*{company}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="phoneNumber">전화번호</label></th>
+                            <td><input class="form-control w-100" type="text" th:field="*{phoneNumber}"></td>
+                        </tr>
+                        <tr>
+                            <th>사용자 구분</th>
+                            <td>
+                                <label for="author" class="d-none"></label>
+                                <select class="form-select w-100" id="author" name="author">
+                                    <option th:each="author : ${author.valuesNotInstitution}" th:value="${author}" th:text="${author.title}"
+                                            th:selected="${account.authorString == author.title}">
+                                    </option>
+                                </select>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+                <div class="text-right">
+                    <div class="text-right">
+                        <button th:onclick="|location.href = '@{/admin/account}'|" class="btn btn-danger back-btn">
+                            취소
+                        </button>
+                        <button type="submit" th:form="'account-new-form'"
+                                class="btn btn-primary account-new-submit float-end">
+                            저장
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/utils/ajax-csrf.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        /*]]>*/
+    </script>
+    <script>
+        new Table();
+        new AccountManager({contextPath: contextPath});
+
+        $('.instt-btn').on("click", function (){
+            $('#instt-search').removeAttr('disabled');
+            $('#modal').modal('show');
+        });
+
+        $('.instt-select-btn').on("click", function () {
+            $('#instt-search').attr('disabled', 'disabled');
+            var insttSearchValue = $('#instt-search option:selected').val();
+            var insttSearchText = $('#instt-search option:selected').text();
+
+            console.log(insttSearchValue)
+            console.log(insttSearchText)
+
+            $('.instt-option').attr('value', insttSearchValue).html(insttSearchText);
+            $('#modal').modal('hide');
+        });
+    </script>
+</th:block>
+</body>

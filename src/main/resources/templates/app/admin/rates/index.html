@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <div class="d-flex">
+                <div class="form-group">
+                    <label for="year-select" class="d-none"></label>
+                    <select id="year-select" class="form-select-lg" disabled>
+                        <option th:each="evlYear : ${evlYears}" th:value="${evlYear}" th:text="${evlYear}"
+                                th:selected="${#strings.equals(year, evlYear)}"></option>
+                    </select>
+                </div>
+                <h1>년 상대평가 비율설정 관리</h1>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="table-responsive mt-2">
+                <table class="table text-center custom-table">
+                    <caption></caption>
+                    <thead>
+                    <tr>
+                        <th>번호</th>
+                        <th>등급 수</th>
+                        <th>지표 수</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <th:block th:if="${rates.isEmpty()}">
+                            <tr>
+                                <td colspan="4">데이터가 존재하지 않습니다.</td>
+                            </tr>
+                        </th:block>
+                        <th:block th:unless="${rates.isEmpty()}">
+                            <tr class="clickable-row" th:each="rate, stat : ${rates}"
+                            th:data-url="@{/admin/evalRate/{id}(id=${rate.id})}">
+                                <td th:text="${stat.count}"></td>
+                                <td th:text="${rate.details.size}"></td>
+                                <td th:text="${rate.indices.size}"></td>
+                                <td>
+                                    <button class="btn btn-delete remove-btn btn-outline-danger" th:form="'remove-form-'+${rate.id}">
+                                        <i class="fa fa-times"></i> 삭제
+                                    </button>
+                                    <form th:id="'remove-form-'+${rate.id}"
+                                          action="#" th:action="@{/admin/evalRate/{rateId}/delete(rateId=${rate.id}, year=${year})}" method="post">
+                                    </form>
+                                </td>
+                            </tr>
+                        </th:block>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <a class="btn btn-primary" th:href="@{/admin/evalRate/new(year=${year})}">등록</a>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script>
+        var Table = new Table();
+        $("#year-select").on("change", function () {
+            location.href = location.pathname + "?year=" + $(this).val();
+        });
+        $("#year-select").attr("disabled", false);
+    </script>
+</th:block>
+</body>

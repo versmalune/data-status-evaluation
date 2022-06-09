@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <div class="d-flex">
+                <h1 th:text="${year + '년 상대평가 비율 설정'}">년 상대평가 비율설정</h1>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <form id="eval-rate-form" action="#" th:action="${rateId == null} ? @{/admin/evalRate} : @{/admin/evalRate/{rateId}(rateId=${rateId})}" method="post" th:object="${dto}">
+                <div class="table-responsive mt-2">
+                    <table class="table text-center custom-table">
+                        <caption></caption>
+                        <thead>
+                        <tr>
+                            <th>등급</th>
+                            <th>비율</th>
+                            <th>
+                                <button type="button" class="btn btn-primary" id="add-rate-btn">추가</button>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <input type="hidden" th:name="year" th:value="${year}">
+                        <tr class="rate-row" th:each="detail, stat : ${dto.rateDetails}">
+                            <input type="hidden" th:name="${'rateDetails['+stat.index+'].id'}" th:value="${detail.id}">
+                            <th>
+                                <div th:text="${detail.level + '등급'}"></div>
+                                <input type="hidden" th:name="${'rateDetails['+stat.index+'].level'}" th:value="${detail.level}">
+                            </th>
+                            <td>
+                                <div class="d-flex m-2 justify-content-center align-items-center">
+                                    <div class="form-group mx-2">
+                                        <label class="d-none" th:for="${'rateDetails'+stat.index+'.rate'}">비율</label>
+                                        <input type="text" class="form-control rate"
+                                               th:id="${'rateDetails'+stat.index+'.rate'}"
+                                               th:name="${'rateDetails['+stat.index+'].rate'}"
+                                               required
+                                               th:value="${detail.rate}"
+                                               title="0 이상, 100 이하의 정수 혹은 소수점 1자리를 포함한 숫자를 입력하세요.">
+                                    </div>
+                                    <div class="me-2"> %</div>
+                                    <div class="rate-postfix" style="width: 200px;"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-outline-danger remove-rate-btn d-none">삭제</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>해당 정성지표</th>
+                            <td colspan="2">
+                                <select class="form-select" id="indices-select">
+                                    <option value="" selected>---</option>
+                                    <option th:each="index : ${indices}" th:value="${index.id}"
+                                            th:text="${index.fullName}"></option>
+                                </select>
+                                <div class="indices-assign-section text-start">
+                                    <div th:id="'index-'+${index.id}" class="assigned-index"
+                                         th:each="index, stat: ${dto.indices}">
+                                        <span th:text="${index.fullName}"></span>
+                                        <button type="button" class="btn btn-sm assigned-index-delete-btn">
+                                            <i class="fas fa-solid fa-backspace text-danger"></i>
+                                        </button>
+                                        <input type="hidden" th:name="|indices[${stat.index}].id|"
+                                               th:value="${index.id}">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/admin/index-rate.js}"></script>
+    <script>
+        var Table = new Table();
+        var $form = $("#eval-rate-form");
+        var IndexRateManager = new IndexRateManager({
+            $form: $form,
+        });
+    </script>
+</th:block>
+</body>

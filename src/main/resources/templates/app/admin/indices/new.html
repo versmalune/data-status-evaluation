@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid"
+     th:with="EvaluationField = ${T(kr.co.data_status_evaluation.model.enums.EvaluationFieldType)},
+              EvaluationType = ${T(kr.co.data_status_evaluation.model.enums.EvaluationType)}">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>평가지표 관리 - 생성</h1>
+        </div>
+
+        <div class="content-section">
+            <form id="evalIndexForm" action="#" th:action="@{/admin/evalIndex}" th:object="${evalIndex}" method="post" enctype="multipart/form-data">
+                <div class="table-responsive mt-2">
+                    <table class="table table-bordered">
+                        <caption></caption>
+                        <colgroup>
+                            <col width="10%">
+                        </colgroup>
+                        <tbody>
+                        <tr>
+                            <th>평가연도</th>
+                            <td colspan="100%">
+                                <label for="year-select" class="d-none"></label>
+                                <select id="year-select" class="form-select" th:field="*{year}">
+                                    <option th:each="evalYear : ${evalYears}" th:value="${evalYear}"
+                                            th:text="${evalYear}"></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">평가영역</th>
+                            <td colspan="100%">
+                                <label for="field-select" class="d-none"></label>
+                                <select id="field-select" class="form-select" th:field="*{fieldNo}">
+                                    <option th:each="field: ${evalFields}"
+                                            th:value="${field.no}"
+                                            th:text="${field.name}">
+                                    </option>
+                                </select>
+                                <div class="text-danger" th:if="${#fields.hasErrors('fieldNo')}"
+                                     th:errors="*{fieldNo}"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="no">번호</label></th>
+                            <td colspan="100%">
+                                <input type="text" class="form-control" placeholder="" th:field="*{no}">
+                                <div class="text-danger" th:if="${#fields.hasErrors('no')}" th:errors="*{no}"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="name">지표명</label></th>
+                            <td colspan="100%">
+                                <input class="form-control" type="text" th:field="*{name}">
+                                <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="question">질문</label></th>
+                            <td colspan="100%">
+                                <input class="form-control" type="text" th:field="*{question}">
+                                <div class="text-danger" th:if="${#fields.hasErrors('question')}"
+                                     th:errors="*{question}"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="description">지표설명(선택)</label></th>
+                            <td colspan="100%">
+                                <textarea class="form-control" rows="10" th:field="*{description}"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="fileDesc">증빙자료설명(선택)</label></th>
+                            <td colspan="100%">
+                                <textarea class="form-control" rows="3" th:field="*{fileDescription}"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="dateRange">실적대상기간</label></th>
+                            <td colspan="100%">
+                                <div class="input-group input-daterange">
+                                    <input type="text" class="form-control" placeholder="YYYY년 MM월 DD일 - YYYY년 MM월 DD일" autocomplete="off"
+                                           th:field="*{dateRange}">
+                                    <span class="input-group-text calendar-icon right">
+                                        <i class="fal fa-calendar"></i></span>
+                                </div>
+                                <div class="text-danger"
+                                     th:if="${#fields.hasErrors('dateRange')}"
+                                     th:errors="*{dateRange}"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>여부 선택</th>
+                            <td colspan="100%" class="text-center">
+                                <div class="form-check form-check-inline px-4">
+                                    <label class="form-check-label" for="inputYn1">평가 점수 공개 여부</label>
+                                    <input class="form-check-input" type="checkbox" id="inputYn1"
+                                           th:field="*{scorePublic}">
+                                </div>
+                                <div class="form-check form-check-inline px-4">
+                                    <label class="form-check-label" for="inputYn2">실적 건수 입력 여부</label>
+                                    <input class="form-check-input" type="checkbox" id="inputYn2"
+                                           th:field="*{performanceInput}">
+                                </div>
+                                <div class="form-check form-check-inline px-4">
+                                    <label class="form-check-label" for="inputYn3">이의 제기 가능 여부</label>
+                                    <input class="form-check-input" type="checkbox" id="inputYn3"
+                                           th:field="*{objectionPossible}">
+                                </div>
+                                <div class="form-check form-check-inline px-4">
+                                    <label class="form-check-label" for="inputYn4">증빙자료 첨부 가능 여부</label>
+                                    <input class="form-check-input" type="checkbox" id="inputYn4"
+                                           th:field="*{attachFile}">
+                                </div>
+                                <div class="form-check form-check-inline px-4">
+                                    <label class="form-check-label" for="inputYn5">N/A등급 여부</label>
+                                    <input class="form-check-input" type="checkbox" id="inputYn5"
+                                           th:field="*{naLevel}">
+                                </div>
+                                <div class="text-danger" th:if="${#fields.hasErrors('scorePublic')}"
+                                     th:errors="*{scorePublic}"></div>
+                                <div class="text-danger" th:if="${#fields.hasErrors('performanceInput')}"
+                                     th:errors="*{performanceInput}"></div>
+                                <div class="text-danger" th:if="${#fields.hasErrors('objectionPossible')}"
+                                     th:errors="*{objectionPossible}"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label th:for="formFiles">양식자료 업로드</label></th>
+                            <td colspan="100%">
+                                <input class="form-control" type="file" th:field="*{formFile}" name="formFile">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>평가유형</th>
+                            <td colspan="100%">
+                                <div class="form-check form-check-inline ps-0"
+                                     th:each="evalType, stat: ${EvaluationType.values()}">
+                                    <input type="radio" class="btn-check" autocomplete="off"
+                                           th:id="${evalType}" th:value="${evalType}" name="type"
+                                           th:field="*{type}">
+                                    <label class="btn btn-outline-primary" th:for="${evalType}"
+                                           th:text="${evalType.title}"></label>
+                                </div>
+                                <div class="form-check form-check-inline ps-0">
+                                    <input type="radio" class="btn-check" autocomplete="off"
+                                           id="plus-or-minus" th:value="${null}" name="type">
+                                    <label class="btn btn-outline-primary btn-outline-secondary disabled" for="plus-or-minus">가감점</label>
+                                </div>
+<!--                                <div class="text-danger" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>-->
+                            </td>
+                        </tr>
+                        <tr>
+                            <th id="score-header" th:rowspan="${institutionCategories.size + 1}">해당기관</th>
+                        </tr>
+
+                        <tr class="score-qual" th:each="category, stat: ${institutionCategories}">
+                            <th th:text="${category.name}"></th>
+                            <th>
+                                <input type="hidden"
+                                       th:name="'relevantInstitutions['+${stat.index}+'].institutionCategory'"
+                                       th:value="${category.id}">
+                                <label class="w-100 py-2" th:for="${category.name} + '-qual'">
+                                    <input class="form-check-input" type="checkbox"
+                                           th:name="'relevantInstitutions['+${stat.index}+'].yn'"
+                                           th:id="${category.name}+'-qual'">
+                                </label>
+                            </th>
+                            <td>
+                                <input class="form-control" type="hidden"
+                                       th:name="'scores['+${stat.index}+'].category'" th:value="${category.id}">
+                                <input class="form-control score-input" type="number" placeholder="배점입력" step="any"
+                                       th:field="${evalIndex.scores[__${stat.index}__].score}" th:id="${'idx-score-' + stat.index}">
+                                <label class="d-none" th:for="${'idx-score-' + stat.index}"></label>
+                                <div class="text-danger" th:if="${#fields.hasErrors('scores['+__${stat.index}__+'].score')}"
+                                     th:errors="${evalIndex.scores[__${stat.index}__].score}"></div>
+                            </td>
+                        </tr>
+
+                        <tr class="score-quan d-none">
+                            <th>등급</th>
+                            <th th:each="category, stat: ${institutionCategories}">
+                                <input type="hidden"
+                                       th:name="'relevantInstitutions['+${stat.index}+'].institutionCategory'"
+                                       th:value="${category.id}" disabled>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" th:for="${category.name} + '-quan'"
+                                           th:text="${category.name}"></label>
+                                    <input class="form-check-input" type="checkbox"
+                                           th:name="'relevantInstitutions['+${stat.index}+'].yn'"
+                                           th:id="${category.name} + '-quan'" disabled>
+                                </div>
+                            </th>
+                            <th>
+                                <button type="button" class="btn btn-primary add-level-btn">
+                                    추가
+                                </button>
+                            </th>
+                        </tr>
+                        <tr class="score-quan d-none">
+                            <th>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <label th:each="category, stat : ${institutionCategories}" class="d-none" th:for="${'a-scores-idx-' + stat.index}"></label>
+                                    <input type="number" min="1" class="form-control level-input input-quan"
+                                           th:each="category, stat : ${institutionCategories}"
+                                           th:name="'scores['+${stat.index}+'].level'" th:attr="data-idx=${stat.index}"
+                                           th:id="${'a-scores-idx-' + stat.index}"
+                                           disabled>
+                                    &nbsp;등급
+                                </div>
+                            </th>
+                            <th th:each="category, stat : ${institutionCategories}">
+                                <div class="d-flex align-items-center">
+                                    <input class="form-control" type="hidden"
+                                           th:name="'scores['+${stat.index}+'].category'" th:value="${category.id}"
+                                           th:attr="data-idx=${stat.index}" disabled>
+                                    <input class="form-control score-input input-quan" type="number" placeholder="배점입력" step="any"
+                                           th:attr="data-idx=${stat.index}"
+                                           th:name="'scores['+${stat.index}+'].score'"
+                                           th:id="${'b-scores-idx-' + stat.index}"
+                                           disabled>
+                                    &nbsp;점
+                                    <label class="d-none" th:for="${'b-scores-idx-' + stat.index}"></label>
+                                </div>
+                                <div class="text-danger" th:if="${#fields.hasErrors('scores['+__${stat.index}__+'].score')}"
+                                     th:errors="${evalIndex.scores[__${stat.index}__].score}"></div>
+                            </th>
+                            <th>
+                                <button type="button" class="btn btn-danger remove-level-btn">삭제</button>
+                            </th>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" id="submit" class="btn btn-primary float-end">저장</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/common/date-utils.js}"></script>
+    <script th:src="@{/js/app/admin/evaluation.js}"></script>
+    <script th:inline="javascript">
+        var fields = /*[[${evalFields}]]*/ undefined;
+        var categories = /*[[${institutionCategories}]]*/ undefined;
+        var contextPath = /*[[${contextPath}]]*/ ""
+        var options = {"contextPath": contextPath};
+
+        var Table = new Table();
+        var DatePicker = new DatePicker();
+        var EvaluationIndexManager = new EvaluationIndexManager(fields, categories, undefined, options);
+
+        $("#submit").on('click', function (e) {
+            let result = confirm("저장하시겠습니까?");
+            if (!result)
+                e.preventDefault();
+        });
+    </script>
+</th:block>
+</body>

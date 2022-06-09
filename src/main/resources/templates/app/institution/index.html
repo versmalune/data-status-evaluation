@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      th:with="EvaluationStatus = ${T(kr.co.data_status_evaluation.model.enums.EvaluationStatus)}">
+<div layout:fragment="content" class="main-content">
+    <div class="container-fluid">
+        <div class="content-wrap">
+            <div class="title-section">
+                <div class="row">
+                    <div class="col">
+                        <h3>
+                            <form id="yearForm">
+                                <label for="evlYear" class="d-none"></label>
+                                <select id="evlYear" name="evlYear" class="d-inline form-select w-auto" disabled>
+                                    <option th:each="y: ${evlYears}" th:value="${y}" th:text="${y}"
+                                            th:selected="${#strings.equals(y, currentEvlYear)}"></option>
+                                </select>
+                                <span>년 평가일정</span>
+                            </form>
+                        </h3>
+                        <ul class="nav nav-tabs stepper justify-content-start" th:if="${schedules.schedules.size() > 0}">
+                            <li class="nav-item" th:each="schedule: ${schedules.schedules}"
+                                th:classappend="|${schedule.isDone ? 'done' : ''} ${schedule.isActive ? 'active' : ''}|">
+                                <a class="nav-link disabled">
+                                    <div th:text="${schedule.name.title}"></div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="row m-4">
+                    <div class="col-6 mb-3 mt-3">
+                        <div class="card shadow  bg-light m-3">
+                            <div class="card-body">
+                                <div class="row align-middle p-4">
+                                    <th:block th:if="${isTargetInstitution == true}">
+                                        <th:block th:if="${currentSchedule != null}">
+                                            <div th:class="${currentSchedule.name == EvaluationStatus.START or currentSchedule.name == EvaluationStatus.P1_END} ? 'col-sm-12 col-md-6 col-lg-7' : 'col-12'">
+                                                <h4 class="card-title text-uppercase text-center">
+                                                    현재<strong><span class="fw-bold"
+                                                                    th:text="${' ['+ currentSchedule.name.title +'] '}"
+                                                                    style="color: #e6b800"></span></strong>기간입니다<br><br>
+                                                    <span th:text="${#dates.format(currentSchedule.beginDt, 'yyyy-MM-dd')  + ' ~ ' + #dates.format(currentSchedule.endDt, 'yyyy-MM-dd')}"></span>
+                                                </h4>
+                                            </div>
+                                            <div class="col-sm-12 col-md-6 col-lg-5">
+                                                <div th:if="${currentSchedule.name == EvaluationStatus.START}">
+                                                    <a class="btn btn-lg btn-primary w-100 p-5" href="#"
+                                                       th:href="@{/instt/eval/instt/{insttId}(insttId=${currentUser.institution.id}, evlYear=${currentEvlYear})}">
+                                                        실적 등록하기
+                                                    </a>
+                                                </div>
+                                                <div th:if="${currentSchedule.name == EvaluationStatus.P1_END}">
+                                                    <a class="btn btn-lg btn-primary" href="#"
+                                                       th:href="@{/instt/eval/instt/{insttId}(insttId=${currentUser.institution.id}, evlYear=${currentEvlYear})}">
+                                                        이의제기 등록하기
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </th:block>
+                                        <th:block th:unless="${currentSchedule != null}">
+                                            <div class="col">
+                                                <h4 class="card-title text-uppercase text-center">
+                                                    현재 진행중인 평가 일정이 없습니다.
+                                                </h4>
+                                            </div>
+                                        </th:block>
+                                    </th:block>
+                                    <th:block th:unless="${isTargetInstitution == true}">
+                                        <div class="col-12">
+                                            <h4 class="card-title text-uppercase text-center"
+                                                th:text="${currentEvlYear} + '년 평가대상이 아닙니다.'">
+                                            </h4>
+                                        </div>
+                                    </th:block>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4>공지사항</h4>
+                            <a href="#" th:href="@{/commons/notices}"><span class="d-none">공지사항 더보기</span><i
+                                    class="fa fa-plus"></i></a>
+                        </div>
+                        <table class="table text-center custom-table">
+                            <caption></caption>
+                            <thead>
+                            <tr>
+                                <th style="width: 20%">번호</th>
+                                <th style="width: 80%">제목</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <th:block th:if="${notices.isEmpty()}">
+                                <tr>
+                                    <td colspan="2">데이터가 존재하지 않습니다.</td>
+                                </tr>
+                            </th:block>
+                            <th:block th:unless="${notices.isEmpty()}">
+                                <tr class="clickable-row" th:each="notice, iter : ${notices}"
+                                    th:data-url="@{'/commons/' + ${notice.id}}">
+                                    <td th:text="${iter.index + 1}"></td>
+                                    <td class="text-start overflow-hidden text-truncate" th:utext="${notice.sj}"></td>
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row field-row" th:if="${isTargetInstitution}">
+                    <div class="col">
+                        <h4 th:text="${currentUser.institution.name}+' 실태평가'"></h4>
+                        <table class="table text-center custom-table">
+                            <caption></caption>
+                            <thead>
+                            <tr>
+                                <th style="width: 40%;">실적 등록 일정</th>
+                                <th style="width: 30%;">평가영역</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody class="p-5">
+                            <th:block th:if="${fields.isEmpty() || schedules.schedules.isEmpty()}">
+                                <tr>
+                                    <td colspan="3">데이터가 존재하지 않습니다.</td>
+                                </tr>
+                            </th:block>
+                            <th:block th:unless="${fields.isEmpty() || schedules.schedules.isEmpty()}">
+                                <tr th:each="field, iter: ${fields}">
+                                    <td th:rowspan="${iter.size}" th:if="${iter.index == 0}" style="font-size: 20px;">
+                                        <th:block th:each="schedule: ${schedules.schedules}">
+                                            <span th:if="${schedule.name == EvaluationStatus.START}"
+                                                  th:text="${schedule.beginDt  + ' ~ ' + schedule.endDt}"></span>
+                                        </th:block>
+                                    </td>
+                                    <td class="fw-bold" th:text="${field.name}"></td>
+                                    <td>
+                                        <th:block th:if="${!schedules?.getSchedule(EvaluationStatus.START)?.isDone}">
+                                            <a class="btn btn-primary" href="#"
+                                               th:href="@{/instt/eval/instt/{insttId}(insttId=${currentUser.institution.id}, active=${field.no}, evlYear=${currentEvlYear})}">
+                                                실적 등록하기
+                                            </a>
+                                        </th:block>
+                                        <th:block th:unless="${!schedules?.getSchedule(EvaluationStatus.START)?.isDone}">
+                                            <a class="btn btn-primary" href="#"
+                                               th:href="@{/instt/eval/instt/{insttId}(insttId=${currentUser.institution.id}, active=${field.no}, evlYear=${currentEvlYear})}">
+                                                평가 바로가기
+                                            </a>
+                                        </th:block>
+                                    </td>
+                                </tr>
+                            </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/ext/amcharts/core.js}"></script>
+    <script th:src="@{/js/ext/amcharts/charts.js}"></script>
+    <script th:src="@{/js/ext/amcharts/animated.js}"></script>
+    <script>am4core.addLicense("CH204832145");</script>
+
+    <script th:src="@{/js/app/home/home-chart-manager.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        var insttId = "[[${currentUser.institution.id}]]"
+        var evlYear = "[[${currentEvlYear}]]"
+        /*]]>*/
+
+        var options = {
+            "contextPath": contextPath,
+            "insttId": insttId,
+            "currentEvlYear": evlYear,
+        };
+
+        new Table();
+        new InsttHomeManager(options);
+
+    </script>
+</th:block>
+</body>

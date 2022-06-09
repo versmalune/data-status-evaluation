@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid"
+     th:with="EvaluationField = ${T(kr.co.data_status_evaluation.model.enums.EvaluationFieldType)},
+              EvaluationType = ${T(kr.co.data_status_evaluation.model.enums.EvaluationType)}">
+    <div class="content-wrap">
+        <div class="title-section">
+            <div class="d-flex">
+                <div class="form-group">
+                    <label for="year-select" class="d-none"></label>
+                    <select id="year-select" class="form-select-lg" disabled>
+                        <option th:each="evlYear : ${evlYears}" th:value="${evlYear}" th:text="${evlYear}"
+                                th:selected="${#strings.equals(year, evlYear)}"></option>
+                    </select>
+                </div>
+                <h1>년 실태평가</h1>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active"
+                            id="generalization-tab" data-bs-toggle="tab" data-bs-target="#generalization" type="button"
+                            role="tab" aria-controls="generalization" aria-selected="true">현황
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation" th:each="index, stat : ${indices}">
+                    <a class="nav-link" th:id="'manage-tab'+${stat.index}"
+                       href="#"
+                       th:href="@{/committee/eval/{id}?year={year}(id=${index.id}, year=${year})}"
+                       th:attrappend="data-seq=${stat.index}, data-bs-target='#manage'+${stat.index},
+                            data-id=${index.id}, data-idx=${stat.index}" aria-controls="manage" aria-selected="false"
+                       th:text="${index.fullName}">
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="generalization" role="tabpanel"
+                     aria-labelledby="generalization-tab">
+                    <div class="row m-4">
+                        <div class="col-4 position-relative" th:each="index : ${indices}">
+                            <h4 th:text="${index.no}+'지표 평가 진행 현황'"></h4>
+                            <div th:id="'status-chart'+${index.id}" class="home-chart"></div>
+                            <div class="chart-legend" th:id="'legend-'+${index.id}"></div>
+                            <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part(${index.id})"></div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-4" th:each="index : ${indices}">
+                            <h4 th:text="${index.fullName}"></h4>
+                            <table class="table text-center custom-table">
+                                <caption></caption>
+                                <thead>
+                                <tr>
+                                    <th>등급</th>
+                                    <th th:if="${index.type == EvaluationType.QUALITATIVE}">백분위</th>
+                                    <th>기관수</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <th:block th:if="${index.type == EvaluationType.QUANTITATION}">
+                                    <tr th:each="level, stat: ${index.scoresLevel}">
+                                        <td th:text="${level + '등급'}"></td>
+                                        <td>
+                                            <span th:text="${rateMap.get(index.id).get(level)} ?: '0'"></span>
+                                        </td>
+<!--                                        <td colspan="3">데이터가 존재하지 않습니다.</td>-->
+                                    </tr>
+                                    <tr th:if="${index.naLevel}">
+                                        <td>N/A</td>
+                                        <td>
+                                            <span th:text="${rateMap.get(index.id).get(0)} ?: '0'"></span>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                                <th:block th:if="${index.type == EvaluationType.QUALITATIVE || index.rate != null}"
+                                          th:with="rates = ${index.rate.details}">
+                                    <tr th:each="rate, stat : ${rates}">
+                                        <td th:text="${rate.level} + '등급'"></td>
+                                        <td>
+                                            <span th:if="${stat.first}"
+                                                  th:text="'상위 ' + ${rates.get(stat.index).rate} + '%'"></span>
+                                            <span th:if="${!(stat.first or stat.last)}"
+                                                  th:text="'상위 ' + ${rates.get(stat.index - 1).rate + 0.1} + ' ~ ' + ${rates[stat.index].rate} + ' %'"></span>
+                                            <span th:if="${stat.last}"
+                                                  th:text="'상위 ' + ${rates.get(stat.index).rate + 0.1} + ' % ~ 100 %'"></span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${rateMap.get(index.id).get(rate.level)} ?: '0'"></span>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/ext/amcharts/core.js}"></script>
+    <script th:src="@{/js/ext/amcharts/charts.js}"></script>
+    <script th:src="@{/js/ext/amcharts/animated.js}"></script>
+    <script>am4core.addLicense("CH204832145");</script>
+    <script th:src="@{/js/app/home/home-chart-manager.js}"></script>
+    <script th:src="@{/js/app/common/ajax-spinner.js}"></script>
+    <script th:inline="javascript">
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+        var contextPath = /*[[${contextPath}]]*/ "";
+        var indices = /*[[${currentUser.getIndicesIdByYear(year)}]]*/ [];
+
+        $("#year-select").on("change", function () {
+            location.href = location.pathname + "?year=" + $(this).val();
+        });
+        $("#year-select").attr("disabled", false);
+
+        var homeChartManager = new HomeChartManager();
+
+        indices.forEach(el => {
+            $.ajax({
+                url: contextPath + "/committee/eval/stats/" + el + "?year=" + $("#year-select").val(),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                    startLoading(el);
+                },
+                complete: function () {
+                    stopLoading(el);
+                },
+                type: "GET",
+                success: function (data) {
+                    var statusData = homeChartManager.preprocess(data);
+                    homeChartManager.render("status-chart" + el, statusData)
+                },
+                error: function (error) {
+                    alert(error);
+                }
+            });
+        })
+
+    </script>
+</th:block>
+</body>

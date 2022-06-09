@@ -1,0 +1,1 @@
+DROP TABLE tb_rev_atch_material;

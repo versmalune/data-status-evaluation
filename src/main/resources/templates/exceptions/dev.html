@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:replace="fragments/header :: header">Header</head>
+<body id="dev-error">
+<div class="container">
+    <div th:replace="fragments/alert :: alert (type='danger', message=${errorMessage})">
+    </div>
+    <div th:include="fragments/footer :: footer">&copy; 2013 The Static Templates</div>
+</div>
+</body>
+</html>

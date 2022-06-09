@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <div class="d-flex">
+                <div class="form-group">
+                    <label for="year-select" class="d-none"></label>
+                    <select id="year-select" class="form-select-lg" disabled>
+                        <option th:each="evalYear : ${evalYears}" th:value="${evalYear}" th:text="${evalYear}"
+                                th:selected="${#strings.equals(year, evalYear)}"></option>
+                    </select>
+                </div>
+                <h1>년 평가영역 관리</h1>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="table-responsive mt-2">
+                <table class="table text-center custom-table">
+                    <caption></caption>
+                    <thead>
+                    <tr>
+                        <th style="width: 10%;">번호</th>
+                        <th>평가영역</th>
+                        <th>총 배점</th>
+                        <th style="width: 10%;"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:if="${evalFields.isEmpty()}">
+                        <tr>
+                            <td colspan="4">데이터가 존재하지 않습니다.</td>
+                        </tr>
+                    </th:block>
+                    <th:block th:unless="${evalFields.isEmpty()}">
+                        <tr class="clickable-row" th:attrappend="data-id=${evalField.id}"
+                            th:each="evalField, stat : ${evalFields}">
+                            <td th:text="${evalField.no}"></td>
+                            <td th:text="${evalField.name}"></td>
+                            <td th:text="${evalField.score}"></td>
+                            <td>
+                                <button class="btn btn-delete remove-btn text-danger" th:form="'remove-form-'+${evalField.id}">
+                                    <i class="fa fa-times"></i> 삭제
+                                </button>
+                                <form th:id="'remove-form-'+${evalField.id}"
+                                      action="#" th:action="@{/admin/evalField/{id}/delete(id=${evalField.id})}" method="post">
+                                </form>
+                            </td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#newFieldModal">
+                        등록
+                    </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="newFieldModal" tabindex="-1" aria-labelledby="newFieldModalLabel" aria-hidden="true">
+        <form action="#" th:action="@{/admin/evalField}" th:object="${field}" method="post" id="evalFieldForm">
+            <input type="hidden" id="fieldId" th:field="*{id}">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newFieldModalLabel">평가분야 생성</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive mt-2">
+                            <table class="table text-center custom-table">
+                                <caption></caption>
+                                <tbody>
+                                <tr>
+                                    <th><label th:for="year">연도</label></th>
+                                    <td>
+                                        <input type="text" class="form-control" placeholder="YYYY" th:field="*{year}"
+                                               minlength="4" maxlength="4">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th><label th:for="no">번호</label></th>
+                                    <td>
+                                        <input type="number" class="form-control" min="1" th:field="*{no}" id="no">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th><label th:for="name">평가영역명</label></th>
+                                    <td>
+                                        <input type="text" class="form-control" th:field="*{name}">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th><label th:for="score">점수</label></th>
+                                    <td>
+                                        <input type="text" class="form-control" th:field="*{score}" required>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                        <button type="submit" class="btn btn-primary">저장</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        var year = "[[${year}]]";
+        /*]]>*/
+    </script>
+    <script>
+        /*<![CDATA[*/
+        // var noList = "[[${noList}]]";
+        /*]]>*/
+        $("#year-select").on("change", function () {
+            location.href = location.pathname + "?year=" + $(this).val();
+        });
+        $("#year-select").attr("disabled", false);
+
+        var modalEl = document.getElementById('newFieldModal');
+        var modal = new bootstrap.Modal(modalEl);
+        modalEl.addEventListener('hidden.bs.modal', function () {
+            initModal(undefined, contextPath + "/admin/evalField");
+        });
+
+        $(".clickable-row").on("click", function (e) {
+            if (e.target.classList.contains("remove-btn")) {
+                return;
+            }
+
+            $.ajax({
+                url: contextPath + "/admin/evalField/" + $(this).data("id"),
+                type: "GET",
+                success: function (data) {
+                    initModal(data, this.url)
+                    modal.show();
+                },
+                error: function (error) {
+                    alert(error);
+                }
+            });
+        })
+
+        $('#evalFieldForm').on("submit", function (e) {
+            e.preventDefault();
+
+            var fieldId = $("#fieldId").val();
+            var fieldYear = $("#year").val();
+            var fieldNo = $("#no").val();
+            var fieldName = $("#name").val();
+            var fieldScore = $("#score").val();
+
+            if (!fieldYear) {
+                alert("연도를 선택해주세요");
+                return;
+            }
+            if (!fieldNo) {
+                alert("번호를 입력해주세요.");
+                return;
+            }
+            if (!fieldName) {
+                alert("평가영역명을 입력해주세요.");
+                return;
+            }
+            if (!fieldScore) {
+                alert("점수를 입력해주세요.");
+                return;
+            } else if (parseInt(fieldScore) <= 0) {
+                alert("0보다 높은 점수를 입력해주세요.");
+                return;
+            }
+
+            if (confirm('저장하시겠습니까?')) {
+                if (fieldId.length > 0) {
+                    $('#evalFieldForm')[0].submit();
+                } else {
+                    $.ajax({
+                        url: contextPath + "/admin/evalField/checkDuplicate",
+                        type: "GET",
+                        data: {
+                            year: fieldYear,
+                            no: fieldNo,
+                            name: fieldName
+                        },
+                        success: function (data) {
+                            if (data.result == true) {
+                                alert("해당 연도에 동일한 번호 또는 평가영역명이 존재합니다.");
+                            } else {
+                                $('#evalFieldForm')[0].submit();
+                            }
+                        },
+                        error: function (error) {
+                            alert(error);
+                        }
+                    });
+                }
+                // if(noList.includes($('#no').val())) {
+                //     errMsg = "이미존재하는 번호입니다."
+                //     $no.focus();
+                //     alert(errMsg);
+                // }
+                // if (!errMsg) {
+                //     form.submit();
+                // }
+            }
+        });
+
+        function initModal(data, url) {
+            if (data) {
+                $("#newFieldModalLabel").text("평가분야 수정");
+                $("#evalFieldForm").attr("action", url)
+                $("#fieldId").val(data.id);
+                $("#year").val(data.year).attr("readonly", true);
+                $("#no").val(data.no);
+                $("#name").val(data.name);
+                $("#score").val(data.score);
+            } else {
+                $("#newFieldModalLabel").text("평가분야 생성");
+                $("#evalFieldForm").attr("action", url)
+                $("#fieldId").val("");
+                $("#year").val(year).attr("readonly", false);
+                $("#no").val(1);
+                $("#name").val("");
+                $("#score").val(0);
+            }
+        }
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+        let value = params.error;
+        if(value) {
+            alert("해당 평가 영역과 관련된 데이터가 존재하여 삭제할 수 없습니다.");
+            window.location.href = window.location.origin + window.location.pathname;
+        }
+    </script>
+</th:block>
+</body>

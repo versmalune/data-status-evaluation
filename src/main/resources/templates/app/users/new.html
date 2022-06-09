@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container">
+    <div class="row m-4">
+        <div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+            <div class="card auth-card shadow">
+                <div class="card-content">
+                    <h2 class="form-title">사용자 등록</h2>
+
+                    <div th:if="${message}" th:text="${message}" th:class="${'alert ' + alertClass}"/>
+                    <div class="auth-body text-left">
+                        <form class="form-narrow form-horizontal" method="post" action="#" th:action="@{/private/users}">
+                            <div class="form-group">
+                                <label for="userId">이메일</label>
+                                <div>
+                                    <input type="text" class="form-control" id="userId" placeholder="email" name="email" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="flnm">이름</label>
+                                <div>
+                                    <input type="text" class="form-control" id="flnm" placeholder="이름" name="flnm" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="instt">소속기관</label>
+                                <div>
+                                    <input type="text" class="form-control" id="instt" placeholder="소속기관" name="instt" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="dept">소속부서</label>
+                                <div>
+                                    <input type="text" class="form-control" id="dept" placeholder="소속부서" name="dept" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="authorSelect">권한</label>
+                                <select class="form-control" id="authorSelect" name="author">
+                                    <option th:each="author: ${T(kr.co.data_status_evaluation.model.enums.Author).values()}" th:value="${author}" th:text="${author.getTitle()}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="jobSelect">업무</label>
+                                <select class="form-control" id="jobSelect" name="job">
+                                    <option th:each="job: ${T(kr.co.data_status_evaluation.model.enums.Job).values()}" th:value="${job}" th:text="${job.getTitle()}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="telno">전화번호</label>
+                                <div>
+                                    <input type="text" class="form-control" id="telno" placeholder="전화번호" name="telno" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword">비밀번호</label>
+                                <div>
+                                    <input type="password" class="form-control" id="inputPassword" placeholder="비밀번호" name="password" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputConfirmedPassword">비밀번호</label>
+                                <div>
+                                    <input type="password" class="form-control" id="inputConfirmedPassword" placeholder="비밀번호 확인" name="confirmedPassword" />
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="col-lg-12">
+                                    <button type="submit" class="btn btn-primary login-btn float-end">사용자 추가</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>

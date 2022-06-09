@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      th:with="author=${T(kr.co.data_status_evaluation.model.enums.Author)}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>사용자 수정</h1>
+        </div>
+
+        <div class="content-section">
+            <div class="account-form">
+                <form id="account-edit-form" action="#" th:action="@{/admin/account/{id}(id=${id})}"
+                      th:object="${account}" method="post">
+                    <input type="hidden" th:field="*{id}">
+                    <table class="custom-table table text-center">
+                        <caption></caption>
+                        <tbody>
+                        <tr>
+                            <th>아이디</th>
+                            <td><input class="form-control w-100" type="text" th:field="*{userId}" readonly></td>
+                        </tr>
+                        <tr>
+                            <th>이메일</th>
+                            <td><input class="form-control w-100" type="text" th:field="*{email}"></td>
+                        </tr>
+                        <tr>
+                            <th>이름</th>
+                            <td><input class="form-control w-100" type="text" th:field="*{name}"></td>
+                        </tr>
+                            <tr>
+                                <th>기존 비밀번호</th>
+                                <td><input class="form-control w-100" type="password" id="oldPassword"></td>
+                            </tr>
+                            <tr>
+                                <th>새 비밀번호</th>
+                                <td>
+                                    <input class="form-control w-100" type="password" th:field="*{password}">
+                                    <div id="pw-message" class="text-start"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>비밀번호 확인</th>
+                                <td>
+                                    <input class="form-control w-100" type="password" id="confirm-password"
+                                           name="confirm-password" required>
+                                    <div id="pw-confirm-message" class="text-start"></div>
+                                </td>
+                            </tr>
+                        <tr>
+                            <th>소속</th>
+                            <td>
+                                <th:block th:if="${account.isInstitution}">
+                                    <input type="text" class="form-control" th:value="${account.institution?.name}"
+                                           readonly>
+                                </th:block>
+                                <th:block th:unless="${account.isInstitution}">
+                                    <input type="text" class="form-control" th:field="*{company}">
+                                </th:block>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>전화번호</th>
+                            <td><input class="form-control w-100" type="text" th:field="*{phoneNumber}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>사용자 구분</th>
+                            <td>
+                                <label for="author" class="d-none"></label>
+                                <select class="w-100 form-select" id="author" name="author">
+<!--                                    <option value="ADMIN" th:selected="${account.admin}">관리자</option>-->
+<!--                                    <option value="INSTITUTION" th:selected="${account.institution}">피평가기관</option>-->
+<!--                                    <option value="COMMITTEE" th:selected="${account.committee}">실태평가단</option>-->
+                                    <option th:each="author : ${author.values}" th:value="${author}"
+                                            th:text="${author.title}"
+                                            th:selected="${account.authorString == author.title}">
+                                    </option>
+                                </select>
+                            </td>
+                        </tr>
+                        <th:block th:if="${account.isCommittee}">
+                            <tr>
+                                <th><label for="indices-select">담당 지표</label></th>
+                                <td>
+                                    <select class="form-select" id="indices-select">
+                                        <option value="" selected>---</option>
+                                        <option th:each="index : ${indices}" th:value="${index.id}"
+                                                th:text="${index.fullName}"></option>
+                                    </select>
+                                    <div class="indices-assign-section text-start">
+                                        <div th:id="'index-'+${index.id}" class="assigned-index"
+                                             th:each="index, stat: ${account.getIndicesByYear(currentYear)}">
+                                            <span th:text="${index.fullName}"></span>
+                                            <button type="button" class="btn btn-sm assigned-index-delete-btn">
+                                                <i class="fas fa-solid fa-backspace text-danger"></i>
+                                            </button>
+                                            <input type="hidden" th:name="'indices['+${stat.index}+'].id'"
+                                                   th:value="${index.id}">
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </th:block>
+                        </tbody>
+                    </table>
+                </form>
+                <div class="text-right">
+                    <div class="text-right">
+                        <button th:onclick="|location.href = '@{/admin/account}'|" class="btn btn-danger back-btn">
+                            취소
+                        </button>
+                        <button type="submit" th:form="'account-edit-form'"
+                                class="btn btn-primary account-edit-submit float-end">
+                            저장
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/utils/ajax-csrf.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        /*]]>*/
+    </script>
+    <script th:inline="javascript">
+        new Table();
+        new AccountManager({contextPath: contextPath});
+    </script>
+</th:block>
+</body>

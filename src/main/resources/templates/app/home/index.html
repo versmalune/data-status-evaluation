@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<div layout:fragment="content" class="main-content">
+    <div class="container-fluid">
+        <div class="content-wrap">
+            <div class="alert alert-danger d-flex align-items-center" th:if="${message != null}">
+                <span class="h4 mb-0 me-2" th:utext="${message}"></span>
+                <a th:href="@{/admin/evalRate}" class="btn btn-danger">상대평가 비율설정 화면으로 이동</a>
+            </div>
+
+            <div class="title-section">
+                <div class="row">
+                    <div class="col">
+                        <h3>
+                            <form id="yearForm">
+                                <label for="year" class="d-none"></label>
+                                <select id="year" name="year" class="d-inline form-select w-auto" disabled>
+                                    <option th:each="y: ${evlYears}" th:value="${y}" th:text="${y}" th:selected="${#strings.equals(y, currentYear)}"></option>
+                                </select>
+                                <span>년 평가일정</span>
+                            </form>
+                        </h3>
+                        <ul class="nav nav-tabs stepper justify-content-start" th:if="${schedules.size() > 0}">
+                            <li class="nav-item" th:each="schedule: ${schedules}"
+                                th:classappend="|${schedule.isDone ? 'done' : ''} ${schedule.isActive ? 'active' : ''}|">
+                                <a class="nav-link disabled">
+                                    <div th:text="${schedule.name.title}"></div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="row justify-content-center m-4">
+                    <div class="col-6 position-relative">
+                        <h4>기관 실태 평가 진행 현황</h4>
+                        <div id="evaluation-db-status-chart" class="home-chart"></div>
+                        <div class="chart-legend" id="status-legend"></div>
+                        <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part(1)"></div>
+                    </div>
+                    <div class="col-6 position-relative">
+                        <h4>이의제기 현황</h4>
+                        <div id="objection-status-chart" class="home-chart"></div>
+                        <div class="chart-legend" id="objection-legend"></div>
+                        <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part(2)"></div>
+                    </div>
+                </div>
+
+
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="search-form-area">
+                            <form action="#" th:action="@{/}" method="get">
+                                <div class="row align-items-end justify-content-end">
+                                    <input type="hidden" th:field="*{searchParam.year}">
+                                    <div class="col-sm-12 col-md-2">
+                                        <div class="form-group">
+                                            <label for="type">기관유형</label>
+                                            <select class="form-select" id="type" name="type">
+                                                <option value="" selected>전체</option>
+                                                <option th:each="category: ${categories}" th:value="${category.getCode()}"
+                                                        th:selected="${category.getCode() == searchParam.type}" th:text="${category.getName()}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-2">
+                                        <div class="form-group justify-content-end">
+                                            <label for="code">기관코드</label>
+                                            <input id="code" type="text" class="search-text form-control" name="code"
+                                                   th:value="${searchParam.code}">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-2">
+                                        <div class="form-group">
+                                            <label for="name">기관명</label>
+                                            <input id="name" type="text" class="search-text form-control" name="name"
+                                                   th:value="${searchParam.name}">
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button class="btn btn-primary mt-2" type="submit">검색</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div>전체: <span th:text="${institutions.totalElements}"></span>건</div>
+
+                    <div class="col">
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-center">
+                                <caption></caption>
+                                <thead>
+                                <tr>
+                                    <th>번호</th>
+                                    <th>기관유형</th>
+                                    <th>기관코드</th>
+                                    <th>기관명</th>
+<!--                                    <th>평가단계</th>-->
+<!--                                    <th>평가일자</th>-->
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <th:block th:if="${institutions.isEmpty()}">
+                                    <tr>
+                                        <td colspan="4">데이터가 존재하지 않습니다.</td>
+                                    </tr>
+                                </th:block>
+                                <th:block th:unless="${institutions.isEmpty()}">
+                                    <tr class="clickable-row"
+                                        th:data-url="@{'/admin/eval/instt/' + ${institution.id} + '?year=' + ${searchParam.year}}"
+                                        th:each="institution, iter : ${institutions}">
+                                        <td th:text="${pagination.totalElements - (((pagination.pageNumber) * pagination.pageSize) + iter.index)}"></td>
+                                        <td th:text="${institution.category.name}"></td>
+                                        <td th:text="${institution.code}"></td>
+                                        <td class="text-start" th:text="${institution.name}"></td>
+<!--                                        <td></td>-->
+<!--                                        <td></td>-->
+                                    </tr>
+                                </th:block>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div th:replace="fragments/pagination :: pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/ext/amcharts/core.js}"></script>
+    <script th:src="@{/js/ext/amcharts/charts.js}"></script>
+    <script th:src="@{/js/ext/amcharts/animated.js}"></script>
+    <script>am4core.addLicense("CH204832145");</script>
+
+    <script th:src="@{/js/app/home/home-chart-manager.js}"></script>
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/common/ajax-spinner.js}"></script>
+    <script>
+        /*<![CDATA[*/
+        var currentYear = "[[${currentYear}]]";
+        var contextPath = "[[${contextPath}]]";
+        /*]]>*/
+    </script>
+    <script th:inline="javascript">
+        var Table = new Table();
+        var homeChartManager = new HomeChartManager();
+
+        $('#year').change(function () {
+            $('#yearForm').attr('action', location.pathname + "?year=" + $(this).find(":selected").val()).submit();
+        });
+        $('#year').attr("disabled", false);
+
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+            url: contextPath + "/stats/progress?evlYear="+currentYear,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+                startLoading(1);
+            },
+            complete: function () {
+                stopLoading(1);
+            },
+            type: "GET",
+            success: function (data) {
+                var progressData = homeChartManager.preprocess(data);
+                homeChartManager.render("evaluation-db-status-chart", progressData);
+            },
+            error: function (error) {
+                alert(error);
+            }
+        });
+
+        $.ajax({
+            url: contextPath + "/stats/objection?evlYear="+currentYear,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+                startLoading(2);
+            },
+            complete: function () {
+                stopLoading(2);
+            },
+            type: "GET",
+            success: function (data) {
+                var objectionData = homeChartManager.preprocess(data);
+                homeChartManager.render("objection-status-chart", objectionData);
+            },
+            error: function (error) {
+                alert(error);
+            }
+        });
+    </script>
+</th:block>
+</body>

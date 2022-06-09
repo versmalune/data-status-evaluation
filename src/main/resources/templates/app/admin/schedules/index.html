@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+       layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1>평가일정 관리</h1>
+        </div>
+
+        <div class="content-section">
+            <div class="d-flex justify-content-start">
+                <span>* 평가일정은 해당년도 평가영역, 평가지표 생성 후 설정 가능합니다.</span>
+            </div>
+            <div class="table-responsive mt-2">
+                <table class="table text-center custom-table">
+                    <caption></caption>
+                    <thead>
+                    <tr>
+                        <th>평가연도</th>
+                        <th>일정 상태</th>
+                        <th>전체 지표수</th>
+                        <th>총 배점</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:if="${summaries.isEmpty()}">
+                        <tr>
+                            <td colspan="3">데이터가 존재하지 않습니다.</td>
+                        </tr>
+                    </th:block>
+                    <th:block th:unless="${summaries.isEmpty()}">
+                        <tr class="clickable-row" th:attr="data-url=@{'/admin/evalSchedules/' + ${summary.year}}"
+                            th:each="summary : ${summaries}">
+                            <td th:text="${summary.year}"></td>
+                            <td>
+                                <span th:if="${summary.scheduleCount > 0}" class="badge bg-success">등록 완료</span>
+                                <span th:unless="${summary.scheduleCount > 0}" class="badge bg-secondary">미등록</span>
+                            </td>
+                            <td th:text="${summary.count}"></td>
+                            <td th:text="${summary.totalScore}"></td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+
+<!--            <div class="d-flex justify-content-end">-->
+<!--                <a class="btn btn-primary" href="#" th:href="@{/admin/evalSchedules/new}">등록</a>-->
+<!--            </div>-->
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script>
+        var Table = new Table();
+    </script>
+</th:block>
+</body>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container mt-1 mb-1">
+    <div class="content-wrap">
+        <form id="boardForm" th:action="@{${board.getId()==null ? '/commons' : '/commons/'+board.getId()}}"
+              method="post" enctype="multipart/form-data">
+            <div class="row mb-3 align-items-center">
+                <div class="col-3">
+                    <label for="type" class="d-none"></label>
+                    <select class="form-select" name="type" id="type">
+                        <option th:value="${board.getNttTy()}" th:text="${board.getNttTy().getType()}"
+                                selected></option>
+                    </select>
+                </div>
+                <div class="col-3" th:if="${board.getNttTy().toString() == 'NOTICE'}">
+                    <input class="form-check-input" id="noticeYn" type="checkbox" name="noticeYn"
+                           th:checked="${board.noticeYn}">
+                    <label for="noticeYn" class="form-check-label pe-2">공지글</label>
+                    <input class="form-check-input" id="hiddenYn" type="checkbox" name="hiddenYn"
+                           th:checked="${board.hiddenYn}">
+                    <label for="hiddenYn" class="form-check-label">숨김</label>
+                </div>
+                <div class="col-12">
+                    <label for="subject" class="d-none"></label>
+                    <input type="text" id="subject" name="subject" class="form-control mt-3 mb-3"
+                           placeholder="제목을 입력하세요."
+                           th:value="${board.getSj()}" required>
+                </div>
+                <div class="col-12 mb-2">
+                    <textarea id="summernote" name="content" class="mt-3" required></textarea>
+                </div>
+                <hr/>
+                <div class="col-12 mb-2">
+                    <label for="atchFiles" class="form-label">첨부파일</label>
+                    <input type="file" class="form-control" id="atchFiles" name="atchFiles" multiple="multiple">
+                </div>
+                <hr/>
+                <div class="col-12" th:if="${materialList != null}" th:each="material: ${materialList}">
+                    <div class="col-12">
+                        <button type="button" class="btn-close" th:attr="materialId = ${material.getId()}"></button>
+                        <a class="primary-text" th:href="|/file/download/${material.getFile().getId()}|"
+                           th:text="${material.getFile().getOrgnlFileNm()}"></a>
+                    </div>
+                </div>
+                <input type="hidden" name="deleteMaterialIds" id="deleteMaterialIds">
+            </div>
+            <div class="d-flex justify-content-between">
+                <a class="btn btn-secondary"
+                   th:href="@{${board.getId()==null ? '/commons/' + board.nttTy.name().toLowerCase() +'s' : '/commons/'+board.getId()}}">취소</a>
+                <button type="submit" class="btn btn-primary">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script>
+        /*<![CDATA[*/
+        var contextPath = "[[${contextPath}]]";
+        /*]]>*/
+    </script>
+    <script th:inline="javascript">
+        $(document).ready(function () {
+            var content = '[[${board.getCn()}]]'.replaceAll("\"", "");
+
+            new InputFileManager();
+            new SummernoteManager({
+                content: content,
+                contextPath: contextPath
+            });
+        });
+
+        let deleteMaterialIds = [];
+
+        $(".btn-close").click(function () {
+            deleteMaterialIds.push($(this).attr("materialId"));
+            $(this).parents(".col-12").remove();
+            console.log(deleteMaterialIds);
+            $("#deleteMaterialIds").val(deleteMaterialIds);
+        });
+
+    </script>
+</th:block>

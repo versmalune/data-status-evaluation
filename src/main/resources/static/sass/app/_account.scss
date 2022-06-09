@@ -1,0 +1,17 @@
+.account-form {
+  padding: 50px 200px 0 200px;
+}
+
+.indices-assign-section {
+  margin-top: 0.5rem;
+
+  .assigned-index {
+    padding-left: 10.5px;
+    border: 1px solid #d1d9e7;
+    border-bottom: none;
+
+    &:last-child {
+      border-bottom: 1px solid #d1d9e7;
+    }
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_bbs RENAME COLUMN view_count TO inqire_cnt;

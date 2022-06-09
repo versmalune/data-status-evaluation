@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS tb_rev_instt_category(
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    category_cd VARCHAR(10),
+    category_nm VARCHAR(100),
+    category_dc VARCHAR(1000),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)

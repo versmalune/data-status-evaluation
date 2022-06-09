@@ -1,0 +1,1 @@
+ALTER TABLE tb_rev_account ADD COLUMN user_id VARCHAR(20) NOT NULL AFTER id;

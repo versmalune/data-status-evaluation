@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<body lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/app}">
+<div layout:fragment="content" class="container-fluid"
+     th:with="EvaluationField = ${T(kr.co.data_status_evaluation.model.enums.EvaluationFieldType)},
+              EvaluationType = ${T(kr.co.data_status_evaluation.model.enums.EvaluationType)},
+              EvaluationStatus = ${T(kr.co.data_status_evaluation.model.enums.EvaluationStatus)}">
+    <div class="content-wrap">
+        <div class="title-section">
+            <h1 th:text="${searchParam.year} + '년 실태평가'"></h1>
+            <div class="text-danger mt-2" th:if="${isScheduleFinished}" style="font-size: 16px;">
+                * 최종평가완료 기간이 종료되었습니다. 수정이 불가능하고, 조회만 가능합니다.
+            </div>
+        </div>
+
+        <div class="content-section">
+            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" href="#" th:href="@{/committee/eval?year={year}(year=${searchParam.year})}"
+                       id="generalization-tab">현황
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation" th:each="index, stat : ${currentUser.getIndicesByYear(searchParam.year)}">
+                    <a class="nav-link" th:id="'manage-tab'+${index.id}"
+                       th:classappend="${index.id == evalIndex.id} ? 'active'"
+                       href="#"
+                       th:href="@{/committee/eval/{id}?year={year}(id=${index.id}, year=${searchParam.year})}"
+                       th:text="${index.fullName}">
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="manage" role="tabpanel"
+                     th:with="index=${evalIndex}">
+                    <div class="search-form-area">
+                        <form action="#"
+                              th:action="@{/committee/eval/{id}?year={year}(id=${index.id}, year=${searchParam.year})}"
+                              method="get"
+                              th:object="${searchParam}">
+                            <div class="d-flex justify-content-end align-items-end me-3">
+                                <input type="hidden" th:field="*{year}" th:value="${searchParam.year}">
+                                <div class="form-group">
+                                    <label th:for="*{institutionType}" class="d-none">기관유형</label>
+                                    <select class="form-select" th:field="*{institutionType}">
+                                        <option value="" selected>전체</option>
+                                        <option th:each="category: ${assignedCategories}" th:value="${category.code}"
+                                                th:selected="${category.code == searchParam.institutionType}"
+                                                th:text="${category.name}"></option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label th:for="*{institutionName}" class="d-none">기관명</label>
+                                    <input type="text" class="search-text form-control" th:field="*{institutionName}"
+                                           placeholder="기관명">
+                                </div>
+                                <button class="btn btn-primary mt-2" type="submit">검색</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <form class="eval-form"
+                          th:action="@{/committee/eval/{id}?year={year}(id=${index.id}, year=${searchParam.year})}"
+                          th:method="post"
+                          th:object="${evalResultWrap}">
+                        <div th:each="institution, stat: ${institutions}"
+                             th:with="result = ${institution.getEvaluationResult(index)},
+                                      temp = ${stat.index + pagination.pageNumber * pagination.pageSize},
+                                      idx = ${stat.index}">
+                            <fieldset>
+                                <div class="card mx-3 mt-3 shadow"
+                                     style="border-radius: 10px; border-left:8px #007bff solid; border-right: none; border-top:none; border-bottom:none">
+                                    <input type="hidden" th:value="${result.id}"
+                                           th:name="'evaluationResultList['+${idx}+'].id'">
+                                    <input type="hidden" th:value="${index.evaluationField.year}"
+                                           th:name="'evaluationResultList['+${idx}+'].year'">
+                                    <input type="hidden" th:value="${index.id}"
+                                           th:name="'evaluationResultList['+${idx}+'].evaluationIndex'">
+                                    <input type="hidden" th:value="${institution.id}"
+                                           th:name="'evaluationResultList['+${idx}+'].institution'">
+
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h4 class="card-title mb-3 text-primary text-uppercase">
+                                                <span th:text="${institution.fullName}"></span>
+                                            </h4>
+                                            <div class="d-inline-flex align-items-center">
+                                                <span class="me-2">
+                                                    <i class="fa fa-info-circle text-info"></i>
+                                                    평가상태 변경 :
+                                                </span>
+                                                <div class="form-group">
+                                                    <label th:for="'processStatus-' + ${idx}"
+                                                           class="d-none">평가상태</label>
+                                                    <select class="form-select"
+                                                            th:name="'evaluationResultList['+${idx}+'].processStatus'"
+                                                            th:id="'processStatus-' + ${idx}">
+                                                        <option th:each="status : ${EvaluationStatus.statuses}"
+                                                                th:text="${status.title}"
+                                                                th:value="${status}"
+                                                                th:selected="${result.processStatus == status}"></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-text fw-bold d-flex justify-content-lg-between">
+                                            <div>
+                                                <span th:text="${index.question}"></span>
+                                                <span th:if="${!(index.type == null || index.type == EvaluationType.QUALITATIVE)}"
+                                                      th:text="${' ( ' + institution.category.name + ' ' + index.getTotalScore(institution.category) + '점 )'}"></span>
+                                                <span th:if="${!index.attachFile}"
+                                                      class="text-warning">(증빙자료 첨부 불가)</span>
+                                            </div>
+                                            <div>
+                                                <th:block th:if="${index.isContainMaterial(indexMaterials)}">
+                                                    <a href="#" th:href="@{/instt/eval/form/{id}(id=${index.id})}"
+                                                       class="btn btn-sm btn-primary">
+                                                        양식 다운로드
+                                                    </a>
+                                                </th:block>
+                                                <button type="button" class="btn btn-sm btn-primary index-desc-btn"
+                                                        data-bs-toggle="modal"
+                                                        th:attr="data-bs-target=${'#descModal' + index.id}">
+                                                    지표 설명
+                                                </button>
+                                                <div th:insert="app/institution/evaluations/descModal :: desc-modal"></div>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-bordered">
+                                                <colgroup>
+                                                    <col width="15%"/>
+                                                    <col width="85%"/>
+                                                </colgroup>
+                                                <tbody>
+                                                <th:block th:if="${index.attachFile}">
+                                                    <tr>
+                                                        <th>실적대상기간</th>
+                                                        <td>
+                                                            <span th:text="${#dates.format(index.beginDt, 'yyyy-MM-dd') + ' ~ ' + #dates.format(index.endDt, 'yyyy-MM-dd')}"></span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row">증빙 자료</th>
+                                                        <td>
+                                                            <th:block th:if="${result?.files?.size() > 0}">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <ul class="file-list file-preview">
+                                                                        <li th:id="${'preview-file-' + file.id}"
+                                                                            th:each="file, iter: ${result.files}">
+                                                                            <a class="primary-text overflow-hidden-text"
+                                                                               href="#"
+                                                                               th:href="@{${file.downloadUrl}}"
+                                                                               th:text="${file.orgnlFileNm}"
+                                                                               download></a>
+                                                                            <input type="hidden" th:value="${file.id}"
+                                                                                   th:name="'evaluationResultList['+${idx}+'].files'">
+                                                                        </li>
+                                                                    </ul>
+                                                                    <div>
+                                                                        <button type="button"
+                                                                                class="btn btn-sm btn-primary zip-download-btn"
+                                                                                th:data-instt-id="${institution.id}"
+                                                                                th:data-index-id="${index.id}"
+                                                                                th:data-zip-name="${institution.fullName}"
+                                                                                th:data-spinner-seq="${stat.index+1}"
+                                                                                role="button">일괄 다운로드
+                                                                        </button>
+                                                                        <div th:replace="fragments/ajaxSpinner :: ajax-spinner-part-d-none(${stat.index+1})"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </th:block>
+                                                            <th:block th:unless="${result?.files?.size() > 0}">
+                                                                <span>증빙 자료가 없습니다.</span>
+                                                            </th:block>
+                                                        </td>
+                                                    </tr>
+                                                </th:block>
+                                                <tr>
+                                                    <th scope="row">검토 의견</th>
+                                                    <td>
+                                                        <textarea rows="4" class="form-control"
+                                                                  th:text="${result.opinion != null && result.opinion != ''} ? ${result.opinion} : ''"
+                                                                  th:value="${result.opinion != null && result.opinion != ''} ? ${result.opinion} : ''"
+                                                                  th:name="'evaluationResultList['+${idx}+'].opinion'"
+                                                                  th:readonly="${!(!schedules.getSchedule(EvaluationStatus.P1_START).isNone &&
+                                                                                (schedules.getSchedule(EvaluationStatus.P1_START).isActive ||
+                                                                                    (result.processStatus == EvaluationStatus.START ||
+                                                                                    result.processStatus == EvaluationStatus.P1_END)))}">
+                                                        </textarea>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">이의 제기 의견</th>
+                                                    <td>
+                                                        <span th:if="${index.objectionPossible}"
+                                                              th:utext="${result.objection}"></span>
+                                                        <span th:unless="${index.objectionPossible}">해당 지표는 이의제기 신청이 불가능합니다.</span>
+                                                        <input type="hidden" th:value="${result.objection}"
+                                                               th:name="'evaluationResultList['+${idx}+'].objection'">
+                                                    </td>
+                                                </tr>
+                                                <tr th:classappend="${!index.objectionPossible} ? 'd-none'">
+                                                    <th scope="row">이의 제기 검토 의견</th>
+                                                    <td>
+                                                        <textarea rows="4" class="form-control"
+                                                                  th:name="'evaluationResultList['+${idx}+'].objectionReview'"
+                                                                  th:text="${result.objectionReview != null && result.objectionReview != '' ? result.objectionReview : ''}"
+                                                                  th:value="${result.objectionReview != null && result.objectionReview != '' ? result.objectionReview : ''}"
+                                                                  th:readonly="${!(!schedules.getSchedule(EvaluationStatus.OBJ_START).isNone &&
+                                                                                (schedules.getSchedule(EvaluationStatus.OBJ_START).isActive ||
+                                                                                    (result.processStatus == EvaluationStatus.OBJ_START ||
+                                                                                    result.processStatus == EvaluationStatus.OBJ_END)))}">
+                                                        </textarea>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th scope="row">평가단점수</th>
+                                                    <td>
+                                                        <div class="d-flex justify-content-start flex-column">
+                                                            <th:block  th:if="${index.type == null || index.type == EvaluationType.QUALITATIVE}">
+                                                                <div class="d-inline-flex align-items-center">
+                                                                    <div class="form-group">
+                                                                        <label th:for="'score-' + ${idx}"
+                                                                               class="d-none"></label>
+                                                                        <input type="number" class="form-control input qualitative-input"
+                                                                               th:max="${index.type == null ? index.getTotalScore(institution.category) : 100}"
+                                                                               step="1"
+                                                                               th:id="'score-' + ${idx}"
+                                                                               th:name="'evaluationResultList['+${idx}+'].score'"
+                                                                               th:value="${result.getScoreToFloat() != null ? index.type == null ? #numbers.formatInteger(result.getScoreToFloat(), 1) : #numbers.formatInteger(result.getScoreToFloat() * 100 / result.evaluationIndex.getTotalScore(institution.category), 1) : 0}"
+                                                                               th:readonly="${!((!schedules.getSchedule(EvaluationStatus.P1_START).isNone &&
+                                                                                                (schedules.getSchedule(EvaluationStatus.P1_START).isActive ||
+                                                                                                    (result.processStatus == EvaluationStatus.START ||
+                                                                                                    result.processStatus == EvaluationStatus.P1_END)))
+                                                                                                   ||
+                                                                                                (!schedules.getSchedule(EvaluationStatus.P2).isNone &&
+                                                                                                    (schedules.getSchedule(EvaluationStatus.P2).isActive ||
+                                                                                                        result.processStatus == EvaluationStatus.OBJ_END)))}">
+                                                                    </div>
+                                                                    점
+                                                                </div>
+                                                                <div class="text-warning">* 정성지표는 100점 만점 기준이며, 0 ~ 100점 사이의 정수를 입력해주세요.</div>
+                                                            </th:block>
+                                                            <th:block  th:if="${index.type != null && index.type == EvaluationType.QUANTITATION}">
+                                                                <div class="d-inline-flex align-items-center">
+                                                                    <div class="form-group">
+                                                                        <label th:for="'score-' + ${idx}"
+                                                                               class="d-none"></label>
+                                                                        <select class="form-select"
+                                                                                th:id="'score-' + ${idx}"
+                                                                                th:name="'evaluationResultList['+${idx}+'].score'">
+                                                                            <option th:disabled="${!((!schedules.getSchedule(EvaluationStatus.P1_START).isNone &&
+                                                                                                (schedules.getSchedule(EvaluationStatus.P1_START).isActive ||
+                                                                                                    (result.processStatus == EvaluationStatus.START ||
+                                                                                                    result.processStatus == EvaluationStatus.P1_END)))
+                                                                                                   ||
+                                                                                                (!schedules.getSchedule(EvaluationStatus.P2).isNone &&
+                                                                                                    (schedules.getSchedule(EvaluationStatus.P2).isActive ||
+                                                                                                        result.processStatus == EvaluationStatus.OBJ_END)))}"
+                                                                                    value="0.0"
+                                                                                    th:selected="${result.score == '0.0'}">---</option>
+                                                                            <option th:disabled="${!((!schedules.getSchedule(EvaluationStatus.P1_START).isNone &&
+                                                                                                (schedules.getSchedule(EvaluationStatus.P1_START).isActive ||
+                                                                                                    (result.processStatus == EvaluationStatus.START ||
+                                                                                                    result.processStatus == EvaluationStatus.P1_END)))
+                                                                                                   ||
+                                                                                                (!schedules.getSchedule(EvaluationStatus.P2).isNone &&
+                                                                                                    (schedules.getSchedule(EvaluationStatus.P2).isActive ||
+                                                                                                        result.processStatus == EvaluationStatus.OBJ_END)))}"
+                                                                                    th:each="score : ${index.getScores(institution.category)}"
+                                                                                    th:value="${score.score}"
+                                                                                    th:text="${score}"
+                                                                                    th:selected="${result.score == score.score.toString()}"></option>
+                                                                            <option th:disabled="${!((!schedules.getSchedule(EvaluationStatus.P1_START).isNone &&
+                                                                                                (schedules.getSchedule(EvaluationStatus.P1_START).isActive ||
+                                                                                                    (result.processStatus == EvaluationStatus.P1_START ||
+                                                                                                    result.processStatus == EvaluationStatus.P1_END)))
+                                                                                                   ||
+                                                                                                (!schedules.getSchedule(EvaluationStatus.P2).isNone &&
+                                                                                                    (schedules.getSchedule(EvaluationStatus.P2).isActive ||
+                                                                                                        result.processStatus == EvaluationStatus.OBJ_END)))}"
+                                                                                    th:if="${index.naLevel}"
+                                                                                    th:value="${null}" th:selected="${result.score == null}">N/A</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </th:block>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="d-flex justify-content-center my-3">
+                            <button type="button" class="btn btn-secondary me-3 prev-btn">이전</button>
+                            <button type="submit" class="btn btn-primary save-btn">저장 후 다음</button>
+                        </div>
+                    </form>
+                    <div th:replace="fragments/pagination :: pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="script">
+    <script th:src="@{/js/app/common/table.js}"></script>
+    <script th:src="@{/js/app/common/ajax-spinner.js}"></script>
+    <script th:inline="javascript">
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+        var contextPath = /*[[${contextPath}]]*/ "";
+        var indices = /*[[${currentUser.getIndicesIdByYear(searchParam.year)}]]*/ [];
+        var currentIndexId = /*[[${evalIndex.getId()}]]*/ 0;
+        var isScheduleFinished = /*[[${isScheduleFinished}]]*/ false;
+
+        $(document).ready(function () {
+            $("#myTabContent").on("change", "input.qualitative-input", function(e) {
+                var value = $(this).val();
+                if (value && value.length > 0) {
+                    var regex = /[^0-9]/g;
+                    if (regex.test(value)) {
+                        if (value.match(/[0-9]+/g) != null) {
+                            value = value.match(/[0-9]+/g)[0];
+                            if (value > 100) {
+                                value = "";
+                            }
+                        } else {
+                            value = "";
+                        }
+
+                        $(this).val(value);
+                        alert("0 ~ 100점 사이의 정수를 입력해주세요.");
+                        $(this).focus();
+                    }
+                }
+            });
+
+            $(".prev-btn").on("click", function () {
+                var year = /*[[${searchParam.year}]]*/ "";
+                var prevId = "";
+                for (var i = 0; i < indices.length; i++) {
+                    if (indices[i] === currentIndexId) {
+                        if (i > 0) {
+                            prevId = indices[i - 1];
+                        } else {
+                            prevId = ""
+                        }
+                    }
+                }
+                location.href = contextPath + `/committee/eval/${prevId}?year=${year}`
+            })
+
+            $('.zip-download-btn').on("click", function () {
+                var spinnerSeq = $(this).data("spinner-seq");
+                var insttId = $(this).data("instt-id");
+                var indexId = $(this).data("index-id");
+                var zipName = $(this).data("zip-name");
+                if (zipName != null && zipName != undefined) {
+                    zipName.trim().replace(/[\{\}\/?,;:|*~`!^\+<>@\#$%&\\\=\'\"]/gi, ''); // 파일명 Validation
+                }
+
+                $.ajax({
+                    url: contextPath + "/file/download/zip/insttId/" + insttId + "/indexId/" + indexId,
+                    type: "GET",
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader(header, token);
+                        startLoading(spinnerSeq);
+                    },
+                    complete: function () {
+                        stopLoading(spinnerSeq);
+                    },
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function (result) {
+                        var blob = result;
+                        var downloadUrl = URL.createObjectURL(blob);
+                        var a = document.createElement("a");
+                        a.href = downloadUrl;
+                        a.download = zipName + ".zip";
+                        document.body.appendChild(a);
+                        a.click();
+                    },
+                    error: function (e) {
+                        window.alert("다운로드중 에러가 발생했습니다.");
+                    }
+                });
+            });
+
+            var $form = $(".eval-form");
+            $form.on("submit", function(e) {
+                e.preventDefault();
+
+                // submit 이전에 disabled 해제
+                if (confirm("저장하시겠습니까?")) {
+                    $(":disabled").attr("disabled", false);
+                    $form[0].submit();
+                }
+            });
+
+            if (isScheduleFinished) {
+                $('.eval-form').find("input, button, select, textarea").not(".zip-download-btn, .btn-close, .btn-secondary").attr("disabled", true);
+            }
+        });
+    </script>
+</th:block>
+</body>
